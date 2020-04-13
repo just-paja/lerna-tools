@@ -4,16 +4,11 @@ module.exports = {
       displayName: "linter",
       runner: "jest-runner-eslint",
       testMatch: ["<rootDir>/**/*.{js,jsx}"],
-      testPathIgnorePatterns: [
-        "<rootDir>/coverage",
-        "<rootDir>/index.js",
-        "<rootDir>/lib/",
-        "<rootDir>/node_modules/"
-      ]
+      testPathIgnorePatterns: ["<rootDir>/coverage", "<rootDir>/node_modules/"]
     },
     {
       displayName: "integration",
-      testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/lib/"],
+      testPathIgnorePatterns: ["<rootDir>/node_modules/"],
       collectCoverageFrom: ["src/**/*.{js,jsx}"],
       coveragePathIgnorePatterns: ["/node_modules/", "/lib/"],
       transform: {
