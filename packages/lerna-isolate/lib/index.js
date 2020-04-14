@@ -17,7 +17,7 @@ const realpath = promisify(fs.realpath);
 const write = promisify(fs.write);
 const writeFile = promisify(fs.writeFile);
 
-const backups = {};
+let backups = {};
 
 function getModulesPath(workPath) {
   return path.join(workPath, "node_modules");
@@ -257,6 +257,7 @@ async function restoreBackups() {
     await writeFile(filePath, await readFile(tmpFile.path));
     await tmpFile.cleanup();
   }
+  backups = {};
 }
 
 async function backupConfig(workPath) {
@@ -280,6 +281,8 @@ async function isolatePackageDeps(workPath) {
 module.exports = {
   backupConfig,
   configurePackageFiles,
+  execute,
+  getModulesPath,
   installDeps,
   isolatePackageDeps,
   readPackage,
