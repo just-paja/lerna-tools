@@ -1,6 +1,6 @@
 {
   "name": "lerna-isolate",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
     "build": "babel . --only bin,lib -d dist",
@@ -30,7 +30,9 @@
   "bugs": {
     "url": "https://github.com/just-paja/lerna-isolate/issues"
   },
-  "files": ["dist/*"],
+  "files": [
+    "dist/*"
+  ],
   "homepage": "https://github.com/just-paja/lerna-isolate#readme",
   "devDependencies": {
     "@babel/cli": "^7.8.4",
