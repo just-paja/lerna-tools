@@ -3,11 +3,14 @@
   "version": "0.1.1",
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
+    "build": "babel . --only bin,lib -d dist",
+    "prepublish": "npm test; npm run build",
     "test": "jest"
   },
   "bin": {
-    "lerna-isolate": "bin/isolate.js"
+    "lerna-isolate": "dist/bin/isolate.js"
   },
+  "main": "dist/lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/just-paja/lerna-isolate.git"
@@ -27,8 +30,10 @@
   "bugs": {
     "url": "https://github.com/just-paja/lerna-isolate/issues"
   },
+  "files": ["dist/*"],
   "homepage": "https://github.com/just-paja/lerna-isolate#readme",
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.5",

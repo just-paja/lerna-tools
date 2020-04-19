@@ -1,6 +1,15 @@
 {
 	"presets":["@babel/preset-env"],
   "plugins": [
-    "@babel/plugin-proposal-class-propeties"
+    "@babel/plugin-proposal-class-properties"
+  ],
+  "ignore": [
+    "dist/**/*",
+    "node_modules/**/*",
+    "jest.config.js"
+  ],
+  "only": [
+    "lib/*.js",
+    "bin/*.js"
   ]
 }
