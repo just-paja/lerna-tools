@@ -165,7 +165,7 @@ async function printPackages() {
   }
 }
 
-argv = yargs
+yargs
   .command(
     "bundle [packages..]",
     "bundle packages",
