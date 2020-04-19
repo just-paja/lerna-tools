@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const os = require("os");
 const fs = require("fs");
 const ora = require("ora");
