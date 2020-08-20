@@ -31,6 +31,7 @@ function advise(message) {
 
 async function isolatePackage(workingPath, onProgress) {
   try {
+    const available = await getPackages()
     const reportProgress = status => onProgress(status / 7);
     const npmPackage = await readPackage(workingPath);
     reportProgress(1);
@@ -45,7 +46,7 @@ async function isolatePackage(workingPath, onProgress) {
     reportProgress(4);
     await backupConfig(workingPath);
     reportProgress(5);
-    await isolatePackageDeps(workingPath);
+    await isolatePackageDeps(workingPath, available);
     reportProgress(6);
     return await packModule({
       modulePath: workingPath,

@@ -43,20 +43,11 @@ async function readPackage(workPath) {
   return readJsonFile(getPackageJsonPath(workPath));
 }
 
-async function getLinkedModules(workPath) {
+async function getLinkedModules(workPath, available) {
   const modulesPath = getModulesPath(workPath);
-  const nodes = await readdir(modulesPath, { withFileTypes: true });
-  const links = await Promise.all(
-    nodes
-      .filter(item => item.isSymbolicLink())
-      .map(link =>
-        realpath(path.join(modulesPath, link.name)).then(modulePath => ({
-          modulePath,
-          name: link.name
-        }))
-      )
-  );
-  return links;
+  const pkg = await readPackage(workPath)
+  const deps = Object.keys(pkg.dependencies || {})
+  return available.filter(mod => deps.includes(mod.name))
 }
 
 async function execute(cmd, options) {
@@ -213,7 +204,7 @@ async function integrateModules(workPath, linkedModules) {
 }
 
 async function installStoredDeps(workPath, storedDeps) {
-  const deps = storedDeps.map(storedDep => storedDep.packagePath);
+  const deps = storedDeps.map(storedDep => `./${path.relative(workPath, storedDep.packagePath)}`);
   await execute(
     `npm install ${deps.join(" ")} --only=production --no-optional`,
     {
@@ -267,9 +258,13 @@ async function backupConfig(workPath) {
   ]);
 }
 
-async function isolatePackageDeps(workPath) {
+async function isolatePackageDeps(workPath, available) {
+  const availablePkgs = available.map(item => ({
+    name: path.basename(item),
+    modulePath: item,
+  }));
   const npmPackage = await readPackage(workPath);
-  const linkedModules = await getLinkedModules(workPath);
+  const linkedModules = await getLinkedModules(workPath, availablePkgs);
 
   if (linkedModules.length) {
     const packedDeps = await integrateModules(workPath, linkedModules);
