@@ -1,110 +1,103 @@
-const fs = require("fs");
-const path = require("path");
-const childProcess = require("child_process");
-const tmp = require("tmp-promise");
+const fs = require('fs')
+const path = require('path')
+const childProcess = require('child_process')
+const tmp = require('tmp-promise')
 
-const { promisify } = require("util");
+const { promisify } = require('util')
 
-const access = promisify(fs.access);
-const copyFile = promisify(fs.copyFile);
-const exec = promisify(childProcess.exec);
-const lstat = promisify(fs.lstat);
-const mkdir = promisify(fs.mkdir);
-const readdir = promisify(fs.readdir);
-const read = promisify(fs.read);
-const readFile = promisify(fs.readFile);
-const realpath = promisify(fs.realpath);
-const write = promisify(fs.write);
-const writeFile = promisify(fs.writeFile);
+const copyFile = promisify(fs.copyFile)
+const mkdir = promisify(fs.mkdir)
+const readFile = promisify(fs.readFile)
+const write = promisify(fs.write)
+const writeFile = promisify(fs.writeFile)
 
-let backups = {};
+let backups = {}
 
-function getModulesPath(workPath) {
-  return path.join(workPath, "node_modules");
+function getModulesPath (workPath) {
+  return path.join(workPath, 'node_modules')
 }
 
-function getDepsPath(workPath) {
-  return path.join(workPath, "node_deps");
+function getDepsPath (workPath) {
+  return path.join(workPath, 'node_deps')
 }
 
-function getPackageJsonPath(workPath) {
-  return path.join(workPath, "package.json");
+function getPackageJsonPath (workPath) {
+  return path.join(workPath, 'package.json')
 }
 
-function getPackageLockPath(workPath) {
-  return path.join(workPath, "package-lock.json");
+function getPackageLockPath (workPath) {
+  return path.join(workPath, 'package-lock.json')
 }
 
-async function readJsonFile(workPath) {
-  return JSON.parse(await readFile(workPath));
+async function readJsonFile (workPath) {
+  return JSON.parse(await readFile(workPath))
 }
 
-async function readPackage(workPath) {
-  return readJsonFile(getPackageJsonPath(workPath));
+async function readPackage (workPath) {
+  return readJsonFile(getPackageJsonPath(workPath))
 }
 
-async function getLinkedModules(workPath, available) {
-  const modulesPath = getModulesPath(workPath);
+async function getLinkedModules (workPath, available) {
   const pkg = await readPackage(workPath)
   const deps = Object.keys(pkg.dependencies || {})
   return available.filter(mod => deps.includes(mod.name))
 }
 
-async function execute(cmd, options) {
+async function execute (cmd, options) {
   return await new Promise((resolve, reject) => {
     childProcess.exec(cmd, options, (err, stdout, stderr) => {
       if (err) {
-        err.stderr = stdout;
-        err.stderr = stderr;
-        reject(err);
+        err.stderr = stdout
+        err.stderr = stderr
+        reject(err)
       } else {
-        resolve({ stderr, stdout });
+        resolve({ stderr, stdout })
       }
-    });
-  });
+    })
+  })
 }
 
-async function packModule(linkedModule) {
-  const { modulePath, name } = linkedModule;
-  const { stdout } = await execute("npm pack", {
+async function packModule (linkedModule) {
+  const { modulePath } = linkedModule
+  const { stdout } = await execute('npm pack', {
     cwd: modulePath
-  });
+  })
   return {
     ...linkedModule,
     archive: path.join(modulePath, stdout.trim())
-  };
+  }
 }
 
 class PrivatePackageError extends Error {
-  isPrivate = true;
+  isPrivate = true
 }
 
 class PackageDoesNotExistError extends Error {
-  static fromError(error) {
-    const result = new this(error.message);
-    result.code = error.code;
-    result.signal = error.signal;
-    result.killed = error.killed;
-    return result;
+  static fromError (error) {
+    const result = new this(error.message)
+    result.code = error.code
+    result.signal = error.signal
+    result.killed = error.killed
+    return result
   }
 }
 
 class MisconfiguredFilesError extends Error {
-  constructor(packageName) {
+  constructor (packageName) {
     super(
       `Module ${packageName} does not have "files" key configured in package.json`
-    );
-    this.packageName = packageName;
+    )
+    this.packageName = packageName
   }
 }
 
-async function installPublishedVersion(workPath, linkedModule) {
-  const { modulePath, name } = linkedModule;
-  const linkedPackage = await readPackage(modulePath);
+async function installPublishedVersion (workPath, linkedModule) {
+  const { modulePath, name } = linkedModule
+  const linkedPackage = await readPackage(modulePath)
   if (linkedPackage.private) {
     throw new PrivatePackageError(
       `Cannot install ${name}@${linkedPackage.version} because it is private`
-    );
+    )
   }
   try {
     await execute(
@@ -112,164 +105,157 @@ async function installPublishedVersion(workPath, linkedModule) {
       {
         cwd: workPath
       }
-    );
+    )
   } catch (e) {
     if (e.code === 1) {
-      throw PackageDoesNotExistError.fromError(e);
+      throw PackageDoesNotExistError.fromError(e)
     }
-    throw e;
+    throw e
   }
 }
 
-async function storeModule(workPath, packedModule) {
+async function storeModule (workPath, packedModule) {
   const packagePath = path.join(
     getDepsPath(workPath),
     path.basename(packedModule.archive)
-  );
-  await copyFile(packedModule.archive, packagePath);
+  )
+  await copyFile(packedModule.archive, packagePath)
   return {
     ...packedModule,
     packagePath
-  };
+  }
 }
 
-async function storeDeps(workPath, packedModules) {
-  const results = [];
+async function storeDeps (workPath, packedModules) {
+  const results = []
   if (packedModules.length) {
     try {
-      await mkdir(getDepsPath(workPath));
+      await mkdir(getDepsPath(workPath))
     } catch (e) {}
   }
   for (const packedModule of packedModules) {
-    results.push(await storeModule(workPath, packedModule));
+    results.push(await storeModule(workPath, packedModule))
   }
-  return results;
+  return results
 }
 
-async function integrateModule(workPath, linkedModule) {
+async function integrateModule (workPath, linkedModule) {
   try {
-    return await installPublishedVersion(workPath, linkedModule);
+    return await installPublishedVersion(workPath, linkedModule)
   } catch (e) {
     if (
       e instanceof PrivatePackageError ||
       e instanceof PackageDoesNotExistError
     ) {
-      return await packModule(linkedModule);
+      return await packModule(linkedModule)
     } else {
-      throw e;
+      throw e
     }
   }
 }
 
-async function hasModules(workPath) {
+async function installDepsSafe (workPath) {
+  return await execute('npm ci --only=production --no-optional', {
+    cwd: workPath
+  })
+}
+
+async function installDepsFresh (workPath) {
+  return await execute('npm install --only=production --no-optional', {
+    cwd: workPath
+  })
+}
+
+async function installDeps (workPath) {
   try {
-    await access(getModulesPath(workPath));
-    return true;
+    await readPackageLock(workPath)
+    return await installDepsSafe(workPath)
   } catch (e) {
-    return false;
+    return await installDepsFresh(workPath)
   }
 }
 
-async function installDepsSafe(workPath) {
-  return await execute("npm ci --only=production --no-optional", {
-    cwd: workPath
-  });
-}
-
-async function installDepsFresh(workPath) {
-  return await execute("npm install --only=production --no-optional", {
-    cwd: workPath
-  });
-}
-
-async function installDeps(workPath) {
-  try {
-    await readPackageLock(workPath);
-    return await installDepsSafe(workPath);
-  } catch (e) {
-    return await installDepsFresh(workPath);
-  }
-}
-
-async function integrateModules(workPath, linkedModules) {
-  const results = [];
+async function integrateModules (workPath, linkedModules) {
+  const results = []
 
   for (const linkedModule of linkedModules) {
-    const result = await integrateModule(workPath, linkedModule);
+    const result = await integrateModule(workPath, linkedModule)
     if (result) {
-      results.push(result);
+      results.push(result)
     }
   }
-  return results;
+  return results
 }
 
-async function installStoredDeps(workPath, storedDeps) {
-  const deps = storedDeps.map(storedDep => `./${path.relative(workPath, storedDep.packagePath)}`);
+async function installStoredDeps (workPath, storedDeps) {
+  const deps = storedDeps.map(
+    storedDep => `./${path.relative(workPath, storedDep.packagePath)}`
+  )
   await execute(
-    `npm install ${deps.join(" ")} --only=production --no-optional`,
+    `npm install ${deps.join(' ')} --only=production --no-optional`,
     {
       cwd: workPath
     }
-  );
+  )
 }
 
-async function configurePackageFiles(workPath) {
-  const npmPackage = await readPackage(workPath);
+async function configurePackageFiles (workPath) {
+  const npmPackage = await readPackage(workPath)
   if (!npmPackage.files) {
-    throw new MisconfiguredFilesError(npmPackage.name);
+    throw new MisconfiguredFilesError(npmPackage.name)
   }
-  const depsPattern = "node_deps";
+  const depsPattern = 'node_deps'
   if (!npmPackage.files.includes(depsPattern)) {
     const configured = {
       ...npmPackage,
       files: [...npmPackage.files, depsPattern]
-    };
+    }
     await writeFile(
       getPackageJsonPath(workPath),
       JSON.stringify(configured, undefined, 2)
-    );
-    return configured;
+    )
+    return configured
   }
 }
 
-async function readPackageLock(workPath) {
-  return readJsonFile(getPackageLockPath(workPath));
+async function readPackageLock (workPath) {
+  return readJsonFile(getPackageLockPath(workPath))
 }
 
-async function backupFile(filePath) {
-  const tmpFile = await tmp.file();
-  await write(tmpFile.fd, await readFile(filePath));
-  backups[filePath] = tmpFile;
-  return tmpFile;
+async function backupFile (filePath) {
+  const tmpFile = await tmp.file()
+  await write(tmpFile.fd, await readFile(filePath))
+  backups[filePath] = tmpFile
+  return tmpFile
 }
 
-async function restoreBackups() {
+async function restoreBackups () {
   for (const [filePath, tmpFile] of Object.entries(backups)) {
-    await writeFile(filePath, await readFile(tmpFile.path));
-    await tmpFile.cleanup();
+    await writeFile(filePath, await readFile(tmpFile.path))
+    await tmpFile.cleanup()
   }
-  backups = {};
+  backups = {}
 }
 
-async function backupConfig(workPath) {
+async function backupConfig (workPath) {
   return Promise.all([
     backupFile(getPackageJsonPath(workPath)),
     backupFile(getPackageLockPath(workPath))
-  ]);
+  ])
 }
 
-async function isolatePackageDeps(workPath, available) {
+async function isolatePackageDeps (workPath, available) {
   const availablePkgs = available.map(item => ({
     name: path.basename(item),
-    modulePath: item,
-  }));
-  const npmPackage = await readPackage(workPath);
-  const linkedModules = await getLinkedModules(workPath, availablePkgs);
+    modulePath: item
+  }))
+  await readPackage(workPath)
+  const linkedModules = await getLinkedModules(workPath, availablePkgs)
 
   if (linkedModules.length) {
-    const packedDeps = await integrateModules(workPath, linkedModules);
-    const storedDeps = await storeDeps(workPath, packedDeps);
-    await installStoredDeps(workPath, storedDeps);
+    const packedDeps = await integrateModules(workPath, linkedModules)
+    const storedDeps = await storeDeps(workPath, packedDeps)
+    await installStoredDeps(workPath, storedDeps)
   }
 }
 
@@ -284,4 +270,4 @@ module.exports = {
   readPackageLock,
   restoreBackups,
   packModule
-};
+}

@@ -25,6 +25,12 @@
     "delink",
     "isolate"
   ],
+  "standard": {
+    "env": [
+      "jest"
+    ],
+    "parser": "babel-eslint"
+  },
   "author": "Pavel Žák <pavel@zak.global>",
   "license": "MIT",
   "bugs": {
@@ -41,13 +47,11 @@
     "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.11.5",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.9.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.4.2",
-    "jest-runner-eslint": "^0.10.0",
+    "jest-runner-standard": "0.0.13",
     "jest-watch-typeahead": "^0.6.1",
-    "prettier": "^2.1.2"
+    "prettier-standard": "^16.4.1",
+    "standard": "^14.3.4"
   },
   "dependencies": {
     "ora": "^5.1.0",
