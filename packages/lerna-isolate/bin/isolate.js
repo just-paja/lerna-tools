@@ -16,7 +16,7 @@ function advise (message) {
   process.stderr.write('\n')
 }
 
-async function isolatePackages (packages) {
+async function isolatePackages (packages, options) {
   const results = []
   const spinner = ora('Isolating packages').start()
 
@@ -24,7 +24,7 @@ async function isolatePackages (packages) {
     const npmPackage = await readPackage(packagePath)
     spinner.text = `Isolating ${npmPackage.name}`
     results.push(
-      await isolatePackage(packagePath, percent => {
+      await isolatePackage({ ...options, packagePath }, percent => {
         spinner.prefixText = `${Math.round(percent * 100)}%`
       })
     )
@@ -60,9 +60,9 @@ async function resolvePackages (packageList) {
   return available
 }
 
-async function bundleContent (packageList) {
+async function bundleContent (packageList, options) {
   const packages = await resolvePackages(packageList)
-  await isolatePackages(packages)
+  await isolatePackages(packages, options)
 }
 
 async function printPackages () {
@@ -96,11 +96,20 @@ async function main () {
       'bundle [packages..]',
       'bundle packages',
       yargs => {
-        yargs.positional('packages', {
-          describe: 'list of packages'
-        })
+        yargs
+          .positional('packages', {
+            describe: 'list of packages'
+          })
+          .option('extract', {
+            alias: 'e',
+            type: 'boolean',
+            description: 'Leave generated output extracted'
+          })
       },
-      argv => exitOnError(bundleContent)(argv.packages)
+      argv => {
+        const { extract } = argv
+        exitOnError(bundleContent)(argv.packages, { extract })
+      }
     )
     .command('list', 'list packages', exitOnError(printPackages))
     .help('h')

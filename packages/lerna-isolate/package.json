@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "ora": "^5.1.0",
+    "tar": "^6.0.5",
     "tmp-promise": "^3.0.2",
     "yargs": "^16.0.3"
   }

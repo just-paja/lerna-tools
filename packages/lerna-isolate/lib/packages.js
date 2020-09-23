@@ -1,7 +1,10 @@
 const os = require('os')
 const path = require('path')
+const tar = require('tar')
 const tmp = require('tmp-promise')
+const zlib = require('zlib')
 
+const { createReadStream } = require('fs')
 const { execute } = require('./cli')
 const {
   readFile,
@@ -178,36 +181,60 @@ async function storeIsolatedModule (workPath, module) {
   }
 }
 
-async function isolatePackage (workingPath, onProgress) {
+async function extractStoredModule (workPath, module) {
+  const root = await findRoot(workPath)
+  const extractedPath = path.join(getDistPath(root), module.name)
+  await mkdir(extractedPath, { recursive: true })
+  await new Promise((resolve, reject) => {
+    createReadStream(module.archive)
+      .on('error', reject)
+      .pipe(zlib.Unzip())
+      .pipe(
+        tar.x({
+          C: extractedPath,
+          strip: 1
+        })
+      )
+      .on('finish', resolve)
+  })
+  return { ...module, extractedPath }
+}
+
+async function isolatePackage ({ extract, packagePath }, onProgress) {
   try {
     const available = await getPackages()
-    const reportProgress = status => onProgress(status / 9)
-    const npmPackage = await readPackage(workingPath)
+    const reportProgress = status => onProgress(status / 10)
+    const npmPackage = await readPackage(packagePath)
     reportProgress(1)
-    await createDistDir(workingPath)
+    await createDistDir(packagePath)
     reportProgress(2)
-    const configured = await configurePackageFiles(workingPath)
+    const configured = await configurePackageFiles(packagePath)
     reportProgress(3)
     let lock
     try {
-      lock = await readPackageLock(workingPath)
+      lock = await readPackageLock(packagePath)
     } catch (e) {}
     reportProgress(4)
-    await installDeps(workingPath)
+    await installDeps(packagePath)
     reportProgress(5)
-    await backupConfig(workingPath)
+    await backupConfig(packagePath)
     reportProgress(6)
-    await isolatePackageDeps(workingPath, available)
+    await isolatePackageDeps(packagePath, available)
     reportProgress(7)
-    const module = await packModule({
-      modulePath: workingPath,
+    let module = await packModule({
+      modulePath: packagePath,
       name: npmPackage.name,
       configuredFiles: Boolean(configured),
       configuredLock: !lock,
       version: npmPackage.version
     })
     reportProgress(8)
-    return await storeIsolatedModule(workingPath, module)
+    module = await storeIsolatedModule(packagePath, module)
+    reportProgress(9)
+    if (extract) {
+      module = await extractStoredModule(packagePath, module)
+    }
+    return module
   } finally {
     await restoreBackups()
   }
