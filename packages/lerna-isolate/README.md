@@ -2,8 +2,6 @@
 
 Extract your app from lerna repository with local package dependencies ready to be shipped to your server. Very helpful when using docker.
 
-**Danger!** This tool is at experimental stage. Feel free to test it on your apps, but beware that this covers only very basic scenarios.
-
 ## What does this do
 
 Let's say you have multiple packages in your monorepo and they depend on some local packages. There is an example of the minimal monorepo.
