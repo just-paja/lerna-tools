@@ -1,6 +1,6 @@
 # lerna-isolate
 
-Extract your app from lerna repository with local package dependencies ready to be shipped to your server. Very helpful when using docker.
+**Extract your app** or lib as npm package from lerna repository **with local**/private package **dependencies** ready to be shipped to your server. Very helpful when using Continuous deployment with lerna and Docker bundling.
 
 ## What does this do
 
