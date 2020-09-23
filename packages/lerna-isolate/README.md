@@ -66,7 +66,7 @@ $ lerna-isolate list
 
 ### Bundle packages
 
-Bundle one or more packages. A package name or a path can be given.
+Bundle one or more packages. A package name(s) or a path(s) can be given.
 
 ```shell
 $ lerna isolate bundle app
