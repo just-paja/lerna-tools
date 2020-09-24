@@ -1,10 +1,11 @@
+const archiver = require('archiver')
 const os = require('os')
 const path = require('path')
 const tar = require('tar')
 const tmp = require('tmp-promise')
 const zlib = require('zlib')
 
-const { createReadStream } = require('fs')
+const { createReadStream, createWriteStream } = require('fs')
 const { execute } = require('./cli')
 const {
   readFile,
@@ -200,10 +201,29 @@ async function extractStoredModule (workPath, module) {
   return { ...module, extractedPath }
 }
 
-async function isolatePackage ({ extract, packagePath }, onProgress) {
+async function zipExtractedModule (workPath, module) {
+  const root = await findRoot(workPath)
+  const zipPath = path.join(
+    getDistPath(root),
+    `${module.name}-${module.version}.zip`
+  )
+  const output = createWriteStream(zipPath)
+  const archive = archiver('zip')
+  await new Promise((resolve, reject) => {
+    output.on('close', resolve)
+    output.on('error', reject)
+    archive.directory(module.extractedPath, false)
+    archive.pipe(output)
+    archive.finalize()
+  })
+  return { ...module, zipPath }
+}
+
+async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
+  const TOTAL_STEPS = 11
   try {
     const available = await getPackages()
-    const reportProgress = status => onProgress(status / 10)
+    const reportProgress = status => onProgress(status / TOTAL_STEPS)
     const npmPackage = await readPackage(packagePath)
     reportProgress(1)
     await createDistDir(packagePath)
@@ -231,8 +251,12 @@ async function isolatePackage ({ extract, packagePath }, onProgress) {
     reportProgress(8)
     module = await storeIsolatedModule(packagePath, module)
     reportProgress(9)
-    if (extract) {
+    if (extract || zip) {
       module = await extractStoredModule(packagePath, module)
+    }
+    reportProgress(10)
+    if (zip) {
+      module = await zipExtractedModule(packagePath, module)
     }
     return module
   } finally {

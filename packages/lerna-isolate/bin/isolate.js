@@ -44,7 +44,19 @@ async function isolatePackages (packages, options) {
   }
   advise('Created:')
   results
-    .map(res => path.relative(process.cwd(), res.archive))
+    .reduce(
+      (aggr, res) =>
+        [
+          ...aggr,
+          path.relative(process.cwd(), res.archive),
+          res.extractedPath
+            ? path.relative(process.cwd(), res.extractedPath)
+            : null,
+          res.zipPath ? path.relative(process.cwd(), res.zipPath) : null
+        ].filter(item => Boolean(item)),
+      []
+    )
+    .sort((a, b) => a.localeCompare(b))
     .forEach(archive => log(`  ${archive}`))
 }
 
@@ -105,10 +117,16 @@ async function main () {
             type: 'boolean',
             description: 'Leave generated output extracted'
           })
+          .option('zip', {
+            alias: 'z',
+            type: 'boolean',
+            description: 'Produce zip archive instead of npm package'
+          })
+          .alias('z', 'gcp')
       },
       argv => {
-        const { extract } = argv
-        exitOnError(bundleContent)(argv.packages, { extract })
+        const { extract, zip } = argv
+        exitOnError(bundleContent)(argv.packages, { extract, zip })
       }
     )
     .command('list', 'list packages', exitOnError(printPackages))
