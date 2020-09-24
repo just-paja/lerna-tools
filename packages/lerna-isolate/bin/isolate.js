@@ -18,9 +18,9 @@ function advise (message) {
 
 async function isolatePackages (packages, options) {
   const results = []
-  const spinner = ora('Isolating packages').start()
 
   for (const packagePath of packages) {
+    const spinner = ora('Isolating packages').start()
     const npmPackage = await readPackage(packagePath)
     spinner.text = `Isolating ${npmPackage.name}`
     results.push(
@@ -30,9 +30,8 @@ async function isolatePackages (packages, options) {
     )
     spinner.prefixText = ''
     spinner.succeed(`Isolated ${npmPackage.name}`)
+    spinner.stop()
   }
-
-  spinner.stop()
 
   if (results.some(result => result.configuredFiles)) {
     advise('Configured package.json to include bundled dependencies')
