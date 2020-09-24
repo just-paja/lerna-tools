@@ -67,7 +67,7 @@ lerna-isolate list
 Bundle one or more packages. A package name(s) or a path(s) can be given.
 
 ```shell
-lerna isolate bundle app
+lerna-isolate bundle app
 ```
 
 ### Produce extracted outputs
@@ -75,7 +75,7 @@ lerna isolate bundle app
 This is useful when you want to examine contents of the isolated build.
 
 ```shell
-lerna isolate bundle -e
+lerna-isolate bundle -e
 ```
 
 ### Produce zip
@@ -83,5 +83,5 @@ lerna isolate bundle -e
 Sometimes, it is more useful to produce zip file instead of npm package. One example could be that you're uploading Google Cloud Platform Function archive. Private dependencies are still bundled in.
 
 ```shell
-lerna isolate bundle -e
+lerna-isolate bundle -e
 ```
