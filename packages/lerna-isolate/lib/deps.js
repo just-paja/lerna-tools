@@ -1,8 +1,11 @@
 const path = require('path')
 
 const { execute } = require('./cli')
-const { copyFile, mkdir, readPackage, readPackageLock } = require('./fs')
 const { getModulesPath, getDepsPath } = require('./paths')
+const { readPackage, readPackageLock } = require('./fs')
+const {
+  promises: { copyFile, mkdir }
+} = require('fs')
 
 async function storeModule (workPath, packedModule) {
   const packagePath = path.join(

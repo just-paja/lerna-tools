@@ -5,21 +5,16 @@ const tar = require('tar')
 const tmp = require('tmp-promise')
 const zlib = require('zlib')
 
-const { createReadStream, createWriteStream } = require('fs')
+const { promisify } = require('util')
 const { execute } = require('./cli')
-const {
-  mkdir,
-  readFile,
-  readPackage,
-  readPackageLock,
-  rename,
-  stat,
-  symlink,
-  unlink,
-  write,
-  writeFile
-} = require('./fs')
 const { installDeps, installStoredDeps, storeDeps } = require('./deps')
+const { readPackage, readPackageLock } = require('./fs')
+const {
+  createReadStream,
+  createWriteStream,
+  promises: { readFile, mkdir, rename, stat, symlink, unlink, writeFile },
+  write
+} = require('fs')
 const {
   findRoot,
   getModulesPath,
@@ -34,6 +29,8 @@ const {
 } = require('./errors')
 
 let backups = {}
+
+const writeFd = promisify(write)
 
 async function getLinkedModules (workPath, available) {
   const pkg = await readPackage(workPath)
@@ -128,7 +125,7 @@ async function backupFile (filePath) {
     return null
   }
   const tmpFile = await tmp.file()
-  await write(tmpFile.fd, await readFile(filePath))
+  await writeFd(tmpFile.fd, await readFile(filePath))
   backups[filePath] = tmpFile
   return tmpFile
 }
@@ -136,7 +133,13 @@ async function backupFile (filePath) {
 async function restoreBackups (workPath) {
   const packageLockPath = getPackageLockPath(workPath)
   if (!backups[packageLockPath]) {
-    await unlink(packageLockPath)
+    try {
+      await unlink(packageLockPath)
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        throw e
+      }
+    }
   }
   for (const [filePath, tmpFile] of Object.entries(backups)) {
     await writeFile(filePath, await readFile(tmpFile.path))
