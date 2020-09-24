@@ -8,13 +8,15 @@ const zlib = require('zlib')
 const { createReadStream, createWriteStream } = require('fs')
 const { execute } = require('./cli')
 const {
-  readFile,
-  rename,
   mkdir,
-  write,
-  writeFile,
+  readFile,
   readPackage,
-  readPackageLock
+  readPackageLock,
+  rename,
+  stat,
+  unlink,
+  write,
+  writeFile
 } = require('./fs')
 const { installDeps, installStoredDeps, storeDeps } = require('./deps')
 const {
@@ -119,13 +121,23 @@ async function configurePackageFiles (workPath) {
 }
 
 async function backupFile (filePath) {
+  try {
+    await stat(filePath)
+  } catch (e) {
+    return null
+  }
+  console.log('backup', filePath)
   const tmpFile = await tmp.file()
   await write(tmpFile.fd, await readFile(filePath))
   backups[filePath] = tmpFile
   return tmpFile
 }
 
-async function restoreBackups () {
+async function restoreBackups (workPath) {
+  const packageLockPath = getPackageLockPath(workPath)
+  if (!backups[packageLockPath]) {
+    await unlink(packageLockPath)
+  }
   for (const [filePath, tmpFile] of Object.entries(backups)) {
     await writeFile(filePath, await readFile(tmpFile.path))
     await tmpFile.cleanup()
@@ -235,9 +247,9 @@ async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
       lock = await readPackageLock(packagePath)
     } catch (e) {}
     reportProgress(4)
-    await installDeps(packagePath)
-    reportProgress(5)
     await backupConfig(packagePath)
+    reportProgress(5)
+    await installDeps(packagePath)
     reportProgress(6)
     await isolatePackageDeps(packagePath, available)
     reportProgress(7)
@@ -260,7 +272,7 @@ async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
     }
     return module
   } finally {
-    await restoreBackups()
+    await restoreBackups(packagePath)
   }
 }
 

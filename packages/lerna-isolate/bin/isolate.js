@@ -37,11 +37,6 @@ async function isolatePackages (packages, options) {
   if (results.some(result => result.configuredFiles)) {
     advise('Configured package.json to include bundled dependencies')
   }
-  if (results.some(result => result.configuredLock)) {
-    advise(
-      'Created package-lock.json. Consider store this file inside the repository so you can track dependency changes.'
-    )
-  }
   advise('Created:')
   results
     .reduce(
