@@ -41,16 +41,12 @@ async function isolatePackages (packages, options) {
   results
     .reduce(
       (aggr, res) =>
-        [
-          ...aggr,
-          path.relative(process.cwd(), res.archive),
-          res.extractedPath
-            ? path.relative(process.cwd(), res.extractedPath)
-            : null,
-          res.zipPath ? path.relative(process.cwd(), res.zipPath) : null
-        ].filter(item => Boolean(item)),
+        [...aggr, res.archive, res.extractedPath, res.zipPath]
+          .concat(res.links)
+          .filter(item => Boolean(item)),
       []
     )
+    .map(archive => path.relative(process.cwd(), archive))
     .sort((a, b) => a.localeCompare(b))
     .forEach(archive => log(`  ${archive}`))
 }

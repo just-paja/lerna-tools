@@ -14,6 +14,7 @@ const {
   readPackageLock,
   rename,
   stat,
+  symlink,
   unlink,
   write,
   writeFile
@@ -126,7 +127,6 @@ async function backupFile (filePath) {
   } catch (e) {
     return null
   }
-  console.log('backup', filePath)
   const tmpFile = await tmp.file()
   await write(tmpFile.fd, await readFile(filePath))
   backups[filePath] = tmpFile
@@ -231,6 +231,28 @@ async function zipExtractedModule (workPath, module) {
   return { ...module, zipPath }
 }
 
+async function linkVersionNeutralOutputs (workPath, module) {
+  const root = await findRoot(workPath)
+  const distPath = getDistPath(root)
+  const outputs = ['archive', 'zipPath']
+  const links = await Promise.all(
+    outputs
+      .filter(output => module[output])
+      .map(async output => {
+        const extension = path
+          .basename(module[output])
+          .substr(`${module.name}-${module.version}.`.length)
+        const neutralPath = path.join(distPath, `${module.name}.${extension}`)
+        try {
+          await unlink(neutralPath)
+        } catch (e) {}
+        await symlink(module[output], neutralPath)
+        return neutralPath
+      })
+  )
+  return { ...module, links }
+}
+
 async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
   const TOTAL_STEPS = 11
   try {
@@ -270,6 +292,8 @@ async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
     if (zip) {
       module = await zipExtractedModule(packagePath, module)
     }
+    reportProgress(11)
+    module = await linkVersionNeutralOutputs(packagePath, module)
     return module
   } finally {
     await restoreBackups(packagePath)

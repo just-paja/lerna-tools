@@ -8,6 +8,7 @@ const mkdir = promisify(fs.mkdir)
 const readFile = promisify(fs.readFile)
 const rename = promisify(fs.rename)
 const stat = promisify(fs.stat)
+const symlink = promisify(fs.symlink)
 const unlink = promisify(fs.unlink)
 const writeFile = promisify(fs.writeFile)
 const write = promisify(fs.write)
@@ -33,6 +34,7 @@ module.exports = {
   readPackageLock,
   rename,
   stat,
+  symlink,
   unlink,
   write,
   writeFile
