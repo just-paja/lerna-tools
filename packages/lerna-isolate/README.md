@@ -62,13 +62,30 @@ List packages that can be bundled
 lerna-isolate list
 ```
 
-### Bundle packages
+### Bundle one package
 
-Bundle one or more packages. A package name(s) or a path(s) can be given.
+Bundle one package. A package name or a path can be given.
 
 ```shell
 lerna-isolate bundle app
 ```
+
+### Bundle multiple packages
+
+Bundle multiple packages. A package name or a path can be given.
+
+```shell
+lerna-isolate bundle app1 app2
+```
+
+### Bundle all packages
+
+Bundle all packages.
+
+```shell
+lerna-isolate bundle
+```
+
 
 ### Produce extracted outputs
 
