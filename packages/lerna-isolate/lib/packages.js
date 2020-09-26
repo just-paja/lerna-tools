@@ -59,7 +59,7 @@ async function installPublishedVersion (workPath, linkedModule) {
   }
   try {
     await execute(
-      `npm install ${name}@${linkedPackage.version} --only=production --no-optional`,
+      `npm install ${name}@${linkedPackage.version} --only=production`,
       {
         cwd: workPath
       }

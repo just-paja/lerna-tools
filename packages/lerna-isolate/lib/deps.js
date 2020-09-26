@@ -33,13 +33,13 @@ async function storeDeps (workPath, packedModules) {
 }
 
 async function installDepsSafe (workPath) {
-  return await execute('npm ci --only=production --no-optional', {
+  return await execute('npm ci --only=production', {
     cwd: workPath
   })
 }
 
 async function installDepsFresh (workPath) {
-  return await execute('npm install --only=production --no-optional', {
+  return await execute('npm install --only=production', {
     cwd: workPath
   })
 }
@@ -47,9 +47,9 @@ async function installDepsFresh (workPath) {
 async function installDeps (workPath) {
   try {
     await readPackageLock(workPath)
-    return await installDepsSafe(workPath)
+    await installDepsSafe(workPath)
   } catch (e) {
-    return await installDepsFresh(workPath)
+    await installDepsFresh(workPath)
   }
 }
 
@@ -57,12 +57,9 @@ async function installStoredDeps (workPath, storedDeps) {
   const deps = storedDeps.map(
     storedDep => `./${path.relative(workPath, storedDep.packagePath)}`
   )
-  await execute(
-    `npm install ${deps.join(' ')} --only=production --no-optional`,
-    {
-      cwd: workPath
-    }
-  )
+  await execute(`npm install ${deps.join(' ')} --only=production`, {
+    cwd: workPath
+  })
 }
 
 module.exports = {
