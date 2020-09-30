@@ -31,6 +31,7 @@ const {
 } = require('./errors')
 
 let backups = {}
+let tainted = []
 
 const writeFd = promisify(write)
 
@@ -83,7 +84,7 @@ async function integrateModule (jobConfig, onProgress) {
       e instanceof PrivatePackageError ||
       e instanceof PackageDoesNotExistError
     ) {
-      return await isolatePackage(
+      return await isolatePackageInner(
         { ...jobConfig, packagePath: linkedModule.modulePath },
         onProgress
       )
@@ -140,7 +141,7 @@ async function backupFile (filePath) {
   return tmpFile
 }
 
-async function restoreBackups (workPath) {
+async function clearDirectory (workPath) {
   const packageLockPath = getPackageLockPath(workPath)
   if (!backups[packageLockPath]) {
     try {
@@ -151,11 +152,21 @@ async function restoreBackups (workPath) {
       }
     }
   }
+  await rmfr(getDepsPath(workPath))
+}
+
+async function clearDirectories () {
+  for (const packagePath of tainted) {
+    await clearDirectory(packagePath)
+  }
+  tainted = []
+}
+
+async function restoreBackups () {
   for (const [filePath, tmpFile] of Object.entries(backups)) {
     await writeFile(filePath, await readFile(tmpFile.path))
     await tmpFile.cleanup()
   }
-  await rmfr(getDepsPath(workPath))
   backups = {}
 }
 
@@ -298,69 +309,81 @@ async function exists (filePath) {
   }
 }
 
-async function isolatePackage ({ extract, packagePath, zip }, onProgress) {
-  const TOTAL_STEPS = 11
-  try {
-    const available = await getPackages()
-    const reportProgress = onProgress.escalate
-      ? onProgress.escalate(TOTAL_STEPS)
-      : createReporter(TOTAL_STEPS, onProgress)
-    const npmPackage = await readPackage(packagePath)
-    const root = await findRoot(packagePath)
-    const fileName = `${npmPackage.name}-${npmPackage.version}.tgz`
-    const archive = path.join(getDistPath(root), fileName)
-    let module = {
-      modulePath: packagePath,
-      name: npmPackage.name,
-      version: npmPackage.version,
-      configuredFiles: false,
-      configuredLock: false,
-      archive
-    }
+const isolated = {}
 
-    if (await exists(archive)) {
-      reportProgress(9)
-    } else {
-      reportProgress()
-      await createDistDir(packagePath)
-      reportProgress()
-      const configured = await configurePackageFiles(packagePath)
-      reportProgress()
-      let lock
-      try {
-        lock = await readPackageLock(packagePath)
-      } catch (e) {}
-      reportProgress()
-      await backupConfig(packagePath)
-      reportProgress()
-      await installDeps(packagePath)
-      reportProgress()
-      await isolatePackageDeps(
-        { extract, packagePath, zip, available },
-        reportProgress
-      )
-      reportProgress()
-      module = await packModule({
-        ...module,
-        configuredFiles: Boolean(configured),
-        configuredLock: !lock
-      })
-      reportProgress()
-      module = await storeIsolatedModule(packagePath, module)
-      reportProgress()
-    }
-    if (extract || zip) {
-      module = await extractStoredModule(packagePath, module)
-    }
+async function isolatePackageInner ({ extract, packagePath, zip }, onProgress) {
+  if (isolated[packagePath]) {
+    return isolated[packagePath]
+  }
+  tainted.push(packagePath)
+  const TOTAL_STEPS = 11
+  const available = await getPackages()
+  const reportProgress = onProgress.escalate
+    ? onProgress.escalate(TOTAL_STEPS)
+    : createReporter(TOTAL_STEPS, onProgress)
+  const npmPackage = await readPackage(packagePath)
+  const root = await findRoot(packagePath)
+  const fileName = `${npmPackage.name}-${npmPackage.version}.tgz`
+  const archive = path.join(getDistPath(root), fileName)
+  let module = {
+    modulePath: packagePath,
+    name: npmPackage.name,
+    version: npmPackage.version,
+    configuredFiles: false,
+    configuredLock: false,
+    archive
+  }
+
+  if (await exists(archive)) {
+    reportProgress(9)
+  } else {
     reportProgress()
-    if (zip) {
-      module = await zipExtractedModule(packagePath, module)
-    }
+    await createDistDir(packagePath)
     reportProgress()
-    module = await linkVersionNeutralOutputs(packagePath, module)
-    return module
+    const configured = await configurePackageFiles(packagePath)
+    reportProgress()
+    let lock
+    try {
+      lock = await readPackageLock(packagePath)
+    } catch (e) {}
+    reportProgress()
+    await backupConfig(packagePath)
+    reportProgress()
+    await installDeps(packagePath)
+    reportProgress()
+    await isolatePackageDeps(
+      { extract, packagePath, zip, available },
+      reportProgress
+    )
+    reportProgress()
+    module = await packModule({
+      ...module,
+      configuredFiles: Boolean(configured),
+      configuredLock: !lock
+    })
+    reportProgress()
+    module = await storeIsolatedModule(packagePath, module)
+    reportProgress()
+  }
+  if (extract || zip) {
+    module = await extractStoredModule(packagePath, module)
+  }
+  reportProgress()
+  if (zip) {
+    module = await zipExtractedModule(packagePath, module)
+  }
+  reportProgress()
+  module = await linkVersionNeutralOutputs(packagePath, module)
+  isolated[packagePath] = module
+  return module
+}
+
+async function isolatePackage (opts, onProgress) {
+  try {
+    return await isolatePackageInner(opts, onProgress)
   } finally {
-    await restoreBackups(packagePath)
+    await clearDirectories()
+    await restoreBackups()
   }
 }
 
@@ -370,6 +393,7 @@ module.exports = {
   getModulesPath,
   getPackages,
   isolatePackage,
+  isolatePackageInner,
   isolatePackageDeps,
   readPackage,
   readPackageLock,

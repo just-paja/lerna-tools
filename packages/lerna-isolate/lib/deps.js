@@ -49,6 +49,7 @@ async function installDeps (workPath) {
     await readPackageLock(workPath)
     await installDepsSafe(workPath)
   } catch (e) {
+    // @FIXME do not swallow errrors
     await installDepsFresh(workPath)
   }
 }
