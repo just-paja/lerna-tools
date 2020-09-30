@@ -4,6 +4,7 @@ const path = require('path')
 const tar = require('tar')
 const tmp = require('tmp-promise')
 const zlib = require('zlib')
+const rmfr = require('rmfr')
 
 const { promisify } = require('util')
 const { execute } = require('./cli')
@@ -18,6 +19,7 @@ const {
 const {
   findRoot,
   getModulesPath,
+  getDepsPath,
   getDistPath,
   getPackageLockPath,
   getPackageJsonPath
@@ -153,6 +155,7 @@ async function restoreBackups (workPath) {
     await writeFile(filePath, await readFile(tmpFile.path))
     await tmpFile.cleanup()
   }
+  await rmfr(getDepsPath(workPath))
   backups = {}
 }
 
