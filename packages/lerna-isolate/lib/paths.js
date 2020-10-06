@@ -36,6 +36,10 @@ function getDepsPath (workPath) {
   return path.join(workPath, 'node_deps')
 }
 
+function getPackagesPath (workPath) {
+  return path.join(workPath, 'packages')
+}
+
 function getPackageJsonPath (workPath) {
   return path.join(workPath, 'package.json')
 }
@@ -54,5 +58,6 @@ module.exports = {
   getDistPath,
   getModulesPath,
   getPackageJsonPath,
-  getPackageLockPath
+  getPackageLockPath,
+  getPackagesPath
 }

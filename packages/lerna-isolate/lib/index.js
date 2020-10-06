@@ -1,7 +1,8 @@
 module.exports = {
   ...require('./cli'),
-  ...require('./deps'),
   ...require('./errors'),
-  ...require('./packages'),
+  ...require('./IsolatedPackage'),
+  ...require('./IsolatedProject'),
+  ...require('./JobRunner'),
   ...require('./paths')
 }

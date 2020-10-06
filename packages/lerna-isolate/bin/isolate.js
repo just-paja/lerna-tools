@@ -4,7 +4,7 @@ const ora = require('ora')
 const path = require('path')
 const yargs = require('yargs')
 
-const { isolatePackage, getPackages, readPackage } = require('../lib')
+const { findRoot, IsolatedProject, JobRunner } = require('../lib')
 
 function log (message) {
   process.stdout.write(message)
@@ -18,20 +18,13 @@ function advise (message) {
 
 async function isolatePackages (packages, options) {
   const results = []
-
-  for (const packagePath of packages) {
-    const spinner = ora('Isolating packages').start()
-    const npmPackage = await readPackage(packagePath)
-    spinner.text = `Isolating ${npmPackage.name}`
-    results.push(
-      await isolatePackage({ ...options, packagePath }, percent => {
-        spinner.prefixText = `${Math.round(percent * 100)}%`
-      })
-    )
-    spinner.prefixText = ''
-    spinner.succeed(`Isolated ${npmPackage.name}`)
-    spinner.stop()
-  }
+  const root = await findRoot()
+  const jobRunner = new JobRunner()
+  const project = new IsolatedProject(root, { reporter: jobRunner })
+  const available = await project.getPackages()
+  const toIsolate = await resolvePackages(available, packages)
+  await project.isolatePackages(toIsolate, options)
+  return
 
   if (results.some(result => result.configuredFiles)) {
     advise('Configured package.json to include bundled dependencies')
@@ -50,79 +43,74 @@ async function isolatePackages (packages, options) {
     .forEach(archive => log(`  ${archive}`))
 }
 
-async function resolvePackages (packageList) {
-  const available = await getPackages()
+async function resolvePackages (available, packageList) {
   if (packageList.length) {
-    return packageList.map(
-      arg =>
-        available.find(availablePkg => path.basename(availablePkg) === arg) ||
-        path.resolve(arg)
+    return packageList.map(arg =>
+      available.find(availablePkg => arg === availablePkg.name)
     )
   }
   return available
 }
 
-async function bundleContent (packageList, options) {
-  const packages = await resolvePackages(packageList)
-  await isolatePackages(packages, options)
-}
-
 async function printPackages () {
-  const packages = await getPackages()
+  const root = await findRoot()
+  const project = new IsolatedProject(root)
+  const packages = await project.getPackages()
   for (const pkg of packages) {
-    log(path.basename(pkg))
-  }
-}
-
-function exitOnError (func) {
-  return async function (...args) {
-    try {
-      await func(...args)
-    } catch (e) {
-      if (e.stdout) {
-        console.error(e.stdout)
-      }
-      if (e.stderr) {
-        console.error(e.stderr)
-      }
-      console.error(e)
-      process.exit(255)
-    }
+    log(pkg.name)
   }
 }
 
 async function main () {
-  // eslint-disable-next-line no-unused-expressions
-  yargs
-    .command(
-      'bundle [packages..]',
-      'bundle packages',
-      yargs => {
-        yargs
-          .positional('packages', {
-            describe: 'list of packages'
+  try {
+    yargs
+      .command(
+        'bundle [packages..]',
+        'bundle packages',
+        yargs => {
+          yargs
+            .positional('packages', {
+              describe: 'list of packages'
+            })
+            .option('extract', {
+              alias: 'e',
+              type: 'boolean',
+              description: 'Leave generated output extracted'
+            })
+            .option('neutral', {
+              alias: 'n',
+              type: 'boolean',
+              description: 'Keep only version neutral outputs'
+            })
+            .option('zip', {
+              alias: 'z',
+              type: 'boolean',
+              description: 'Produce zip archive instead of npm package'
+            })
+            .alias('z', 'gcp')
+        },
+        async argv =>
+          await isolatePackages(argv.packages, {
+            extract: Boolean(argv.extract),
+            neutral: Boolean(argv.neutral),
+            zip: Boolean(argv.zip)
           })
-          .option('extract', {
-            alias: 'e',
-            type: 'boolean',
-            description: 'Leave generated output extracted'
-          })
-          .option('zip', {
-            alias: 'z',
-            type: 'boolean',
-            description: 'Produce zip archive instead of npm package'
-          })
-          .alias('z', 'gcp')
-      },
-      argv => {
-        const { extract, zip } = argv
-        exitOnError(bundleContent)(argv.packages, { extract, zip })
-      }
-    )
-    .command('list', 'list packages', exitOnError(printPackages))
-    .help('h')
-    .alias('h', 'help')
-    .demandCommand().argv
+      )
+      .command('list', 'list packages', printPackages)
+      .help('h')
+      .alias('h', 'help')
+      .demandCommand()
+      .parse()
+  } catch (e) {
+    if (e.stdout) {
+      console.error(e.stdout)
+    }
+    if (e.stderr) {
+      console.error(e.stderr)
+    }
+    console.error(e)
+    process.exit(255)
+  }
 }
 
 main()

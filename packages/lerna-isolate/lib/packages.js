@@ -1,14 +1,14 @@
 const archiver = require('archiver')
-const os = require('os')
 const path = require('path')
 const tar = require('tar')
 const tmp = require('tmp-promise')
 const zlib = require('zlib')
 const rmfr = require('rmfr')
 
+const { IsolatedProject } = require('./IsolatedProject')
 const { promisify } = require('util')
 const { execute } = require('./cli')
-const { installDeps, installStoredDeps, storeDeps } = require('./deps')
+const { installStoredDeps, storeDeps } = require('./deps')
 const { readPackage, readPackageLock } = require('./fs')
 const {
   createReadStream,
@@ -34,12 +34,6 @@ let backups = {}
 let tainted = []
 
 const writeFd = promisify(write)
-
-async function getLinkedModules (workPath, available) {
-  const pkg = await readPackage(workPath)
-  const deps = Object.keys(pkg.dependencies || {})
-  return available.filter(mod => deps.includes(mod.name))
-}
 
 async function packModule (linkedModule) {
   const { modulePath } = linkedModule
@@ -75,40 +69,7 @@ async function installPublishedVersion (workPath, linkedModule) {
   }
 }
 
-async function integrateModule (jobConfig, onProgress) {
-  const { packagePath, linkedModule } = jobConfig
-  try {
-    return await installPublishedVersion(packagePath, linkedModule)
-  } catch (e) {
-    if (
-      e instanceof PrivatePackageError ||
-      e instanceof PackageDoesNotExistError
-    ) {
-      return await isolatePackageInner(
-        { ...jobConfig, packagePath: linkedModule.modulePath },
-        onProgress
-      )
-    } else {
-      throw e
-    }
-  }
-}
 
-async function integrateModules (jobConfig, onProgress) {
-  const { linkedModules } = jobConfig
-  const results = []
-
-  for (const linkedModule of linkedModules) {
-    const result = await integrateModule(
-      { ...jobConfig, linkedModule },
-      onProgress
-    )
-    if (result) {
-      results.push(result)
-    }
-  }
-  return results
-}
 
 async function configurePackageFiles (workPath) {
   const npmPackage = await readPackage(workPath)
@@ -178,13 +139,9 @@ async function backupConfig (workPath) {
 }
 
 async function isolatePackageDeps (jobConfig, onProgress) {
-  const { available, packagePath } = jobConfig
-  const availablePkgs = available.map(item => ({
-    name: path.basename(item),
-    modulePath: item
-  }))
+  const { packagePath, root } = jobConfig
   await readPackage(packagePath)
-  const linkedModules = await getLinkedModules(packagePath, availablePkgs)
+  const linkedModules = await getLinkedModules(packagePath, root)
 
   if (linkedModules.length) {
     const packedDeps = await integrateModules(
@@ -194,17 +151,6 @@ async function isolatePackageDeps (jobConfig, onProgress) {
     const storedDeps = await storeDeps(packagePath, packedDeps)
     await installStoredDeps(packagePath, storedDeps)
   }
-}
-
-async function getPackages () {
-  const root = await findRoot(process.cwd())
-  const { stdout } = await execute('lerna list -a --loglevel=error')
-  const modulesPath = getModulesPath(root)
-  return stdout
-    .split(os.EOL)
-    .filter(row => row.includes('PRIVATE'))
-    .map(row => row.split(' '))
-    .map(([pkg]) => path.resolve(path.join(modulesPath, pkg)))
 }
 
 async function createDistDir (workPath) {
@@ -282,24 +228,6 @@ async function linkVersionNeutralOutputs (workPath, module) {
   return { ...module, links }
 }
 
-function createReporter (initialSteps, onProgress) {
-  let steps = initialSteps
-  let status = 0
-
-  function reportProgress (jump = 1) {
-    status += jump
-    onProgress(status / steps)
-  }
-
-  function escalate (extraSteps, p) {
-    steps += extraSteps
-    return reportProgress
-  }
-
-  reportProgress.escalate = escalate
-  return reportProgress
-}
-
 async function exists (filePath) {
   try {
     await stat(filePath)
@@ -311,74 +239,7 @@ async function exists (filePath) {
 
 const isolated = {}
 
-async function isolatePackageInner ({ extract, packagePath, zip }, onProgress) {
-  if (isolated[packagePath]) {
-    return isolated[packagePath]
-  }
-  tainted.push(packagePath)
-  const TOTAL_STEPS = 11
-  const available = await getPackages()
-  const reportProgress = onProgress.escalate
-    ? onProgress.escalate(TOTAL_STEPS)
-    : createReporter(TOTAL_STEPS, onProgress)
-  const npmPackage = await readPackage(packagePath)
-  const root = await findRoot(packagePath)
-  const fileName = `${npmPackage.name}-${npmPackage.version}.tgz`
-  const archive = path.join(getDistPath(root), fileName)
-  let module = {
-    modulePath: packagePath,
-    name: npmPackage.name,
-    version: npmPackage.version,
-    configuredFiles: false,
-    configuredLock: false,
-    archive
-  }
-
-  if (await exists(archive)) {
-    reportProgress(9)
-  } else {
-    reportProgress()
-    await createDistDir(packagePath)
-    reportProgress()
-    const configured = await configurePackageFiles(packagePath)
-    reportProgress()
-    let lock
-    try {
-      lock = await readPackageLock(packagePath)
-    } catch (e) {}
-    reportProgress()
-    await backupConfig(packagePath)
-    reportProgress()
-    await installDeps(packagePath)
-    reportProgress()
-    await isolatePackageDeps(
-      { extract, packagePath, zip, available },
-      reportProgress
-    )
-    reportProgress()
-    module = await packModule({
-      ...module,
-      configuredFiles: Boolean(configured),
-      configuredLock: !lock
-    })
-    reportProgress()
-    module = await storeIsolatedModule(packagePath, module)
-    reportProgress()
-  }
-  if (extract || zip) {
-    module = await extractStoredModule(packagePath, module)
-  }
-  reportProgress()
-  if (zip) {
-    module = await zipExtractedModule(packagePath, module)
-  }
-  reportProgress()
-  module = await linkVersionNeutralOutputs(packagePath, module)
-  isolated[packagePath] = module
-  return module
-}
-
-async function isolatePackage (opts, onProgress) {
+async function isolatePackage1 (opts, onProgress) {
   try {
     return await isolatePackageInner(opts, onProgress)
   } finally {
@@ -387,13 +248,20 @@ async function isolatePackage (opts, onProgress) {
   }
 }
 
+async function isolatePackage ({ extract, pkg, zip }, onProgress) {
+  const root = await findRoot(pkg.location)
+  const project = new IsolatedProject(root, {
+    onProgress
+  })
+  await project.isolatePackage(pkg, { extract, zip })
+}
+
 module.exports = {
   backupConfig,
   configurePackageFiles,
   getModulesPath,
-  getPackages,
+  getPackages: IsolatedProject.getPackages,
   isolatePackage,
-  isolatePackageInner,
   isolatePackageDeps,
   readPackage,
   readPackageLock,
