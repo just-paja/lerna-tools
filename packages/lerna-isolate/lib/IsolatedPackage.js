@@ -3,7 +3,6 @@ const Package = require('@lerna/package')
 const path = require('path')
 const tar = require('tar')
 const tmp = require('tmp-promise')
-const rmfr = require('rmfr')
 const zlib = require('zlib')
 
 const { createReadStream, createWriteStream, promises, write } = require('fs')
@@ -261,19 +260,19 @@ class IsolatedPackage extends Package {
     }
   }
 
-  pack = async () =>
+  pack = async () => {
     await execute('npm pack', {
       cwd: this.location
     })
+    this.project.addProduct(this.packageDefaultPath)
+  }
 
-  store = async () =>
-    await ensureSymlink(this.packageDefaultPath, this.packagePath)
-
-  linkVersionNeutralOutputs = async ({ zip }) => {
-    await ensureSymlink(this.packageDefaultPath, this.versionNeutralPackagePath)
-    if (zip) {
-      await ensureSymlink(this.zipDefaultPath, this.versionNeutralZipPath)
-    }
+  store = async ({ neutral }) => {
+    const packagePath = neutral
+      ? this.versionNeutralPackagePath
+      : this.packagePath
+    await ensureSymlink(this.packageDefaultPath, packagePath)
+    this.project.addProduct(packagePath)
   }
 
   extract = async () => {
@@ -290,6 +289,7 @@ class IsolatedPackage extends Package {
         )
         .on('finish', resolve)
     })
+    this.project.addProduct(this.extractedPath)
   }
 
   zip = async ({ neutral }) => {
@@ -302,9 +302,10 @@ class IsolatedPackage extends Package {
       archive.pipe(output)
       archive.finalize()
     })
-    if (!neutral) {
-      await ensureSymlink(this.zipDefaultPath, this.zipPath)
-    }
+    this.project.addProduct(this.zipDefaultPath)
+    const zipPath = neutral ? this.versionNeutralZipPath : this.zipPath
+    await ensureSymlink(this.zipDefaultPath, zipPath)
+    this.project.addProduct(zipPath)
   }
 
   cleanup = async () => {
@@ -333,10 +334,13 @@ class IsolatedPackage extends Package {
           })
       })
       jobs.push({ name: `Package ${this.name}`, fn: this.pack })
-      if (!neutral) {
-        jobs.push({ name: `Store ${this.name}`, fn: this.store })
-      }
+    } else {
+      this.project.addProduct(this.packageDefaultPath)
     }
+    jobs.push({
+      name: `Store ${this.name}`,
+      fn: async () => await this.store({ neutral })
+    })
     if (extract || zip) {
       jobs.push({ name: `Extract ${this.name}`, fn: this.extract })
     }
@@ -346,10 +350,6 @@ class IsolatedPackage extends Package {
         fn: async () => await this.zip({ neutral })
       })
     }
-    jobs.push({
-      name: `Link version neutral ${this.name}`,
-      fn: async () => await this.linkVersionNeutralOutputs({ zip })
-    })
     await this.reporter.runJobs(jobs)
   }
 }

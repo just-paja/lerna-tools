@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const ora = require('ora')
 const path = require('path')
 const yargs = require('yargs')
 
@@ -17,27 +16,15 @@ function advise (message) {
 }
 
 async function isolatePackages (packages, options) {
-  const results = []
   const root = await findRoot()
   const jobRunner = new JobRunner()
   const project = new IsolatedProject(root, { reporter: jobRunner })
   const available = await project.getPackages()
   const toIsolate = await resolvePackages(available, packages)
   await project.isolatePackages(toIsolate, options)
-  return
 
-  if (results.some(result => result.configuredFiles)) {
-    advise('Configured package.json to include bundled dependencies')
-  }
   advise('Created:')
-  results
-    .reduce(
-      (aggr, res) =>
-        [...aggr, res.archive, res.extractedPath, res.zipPath]
-          .concat(res.links)
-          .filter(item => Boolean(item)),
-      []
-    )
+  project.products
     .map(archive => path.relative(process.cwd(), archive))
     .sort((a, b) => a.localeCompare(b))
     .forEach(archive => log(`  ${archive}`))

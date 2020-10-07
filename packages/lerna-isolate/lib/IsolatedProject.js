@@ -2,32 +2,14 @@ const path = require('path')
 const Project = require('@lerna/project')
 
 const { IsolatedPackage } = require('./IsolatedPackage.js')
-const {
-  promises: { mkdir }
-} = require('fs')
-
-function createReporter (initialSteps, onProgress) {
-  let steps = initialSteps
-  let status = 0
-
-  function reportProgress (jump = 1) {
-    status += jump
-    onProgress(status / steps)
-  }
-
-  function escalate (extraSteps, p) {
-    steps += extraSteps
-    return reportProgress
-  }
-
-  reportProgress.escalate = escalate
-  return reportProgress
-}
+const { promises } = require('fs')
+const { mkdir } = promises
 
 class IsolatedProject extends Project {
   onProgress = null
   isolated = {}
   tainted = []
+  products = []
 
   static async getPackages () {
     const bare = await super.getPackages()
@@ -48,6 +30,12 @@ class IsolatedProject extends Project {
 
   get distPath () {
     return path.join(this.rootPath, 'dist')
+  }
+
+  addProduct (productPath) {
+    if (!this.products.includes(productPath)) {
+      this.products.push(productPath)
+    }
   }
 
   async createDistDir () {
