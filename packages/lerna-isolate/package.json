@@ -3,14 +3,14 @@
   "version": "0.3.1",
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
-    "build": "babel . --only bin,lib -d dist",
+    "build": "babel ./lib ./bin -d dist --ignore '**/__tests__/**'",
     "prepublish": "npm test; npm run build",
     "test": "jest"
   },
   "bin": {
-    "lerna-isolate": "dist/bin/isolate.js"
+    "lerna-isolate": "dist/isolate.js"
   },
-  "main": "dist/lib/index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/just-paja/lerna-isolate.git"

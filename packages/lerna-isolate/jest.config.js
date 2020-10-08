@@ -13,7 +13,11 @@ module.exports = {
     },
     {
       displayName: 'integration',
-      testPathIgnorePatterns: ['<rootDir>/node_modules/', '__fixtures__'],
+      testPathIgnorePatterns: [
+        '<rootDir>/node_modules/',
+        '__fixtures__',
+        '__dist__'
+      ],
       transform: {
         '^.+\\.(js|jsx)$': 'babel-jest'
       }

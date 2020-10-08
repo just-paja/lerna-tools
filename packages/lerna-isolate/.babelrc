@@ -3,9 +3,5 @@
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     "@babel/plugin-transform-runtime"
-  ],
-  "only": [
-    "lib/**/*.js",
-    "bin/**/*.js"
   ]
 }
