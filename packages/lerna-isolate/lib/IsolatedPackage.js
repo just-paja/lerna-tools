@@ -6,7 +6,16 @@ const tmp = require('tmp-promise')
 const zlib = require('zlib')
 
 const { createReadStream, createWriteStream, promises, write } = require('fs')
-const { copyFile, mkdir, readFile, stat, symlink, unlink, writeFile } = promises
+const {
+  copyFile,
+  mkdir,
+  readdir,
+  readFile,
+  stat,
+  symlink,
+  unlink,
+  writeFile
+} = promises
 const { execute } = require('./cli')
 const { promisify } = require('util')
 const {
@@ -43,6 +52,7 @@ class IsolatedPackage extends Package {
   storedDependencies = []
   parentPackage = null
   project = null
+  isolatedPackagePrefix = 'isolated-'
 
   static from (pkgInstance, config) {
     return new IsolatedPackage(
@@ -135,7 +145,7 @@ class IsolatedPackage extends Package {
     if (!files) {
       throw new MisconfiguredFilesError(this.name)
     }
-    this.set('files', [...files, 'isolated-*.tgz'])
+    this.set('files', [...files, `${this.isolatedPackagePrefix}*.tgz`])
     await this.serialize()
   }
 
@@ -219,7 +229,7 @@ class IsolatedPackage extends Package {
   }
 
   getDependencyPath = pkg =>
-    path.join(this.depsPath, `isolated-${pkg.packageName}`)
+    path.join(this.depsPath, `${this.isolatedPackagePrefix}${pkg.packageName}`)
 
   storeDependency = async dep => {
     await copyFile(dep.packageDefaultPath, this.getDependencyPath(dep))
@@ -308,9 +318,19 @@ class IsolatedPackage extends Package {
     this.project.addProduct(zipPath)
   }
 
+  getIsolatedPackages = async () => {
+    const files = await readdir(this.depsPath)
+    return files
+      .filter(fileName => fileName.startsWith('isolated'))
+      .map(fileName => path.join(this.depsPath, fileName))
+  }
+
   cleanup = async () => {
-    return
     await ensureUnlink(this.manifestLockLocation)
+    const isolated = await this.getIsolatedPackages()
+    for (const pkgFile of isolated) {
+      await ensureUnlink(pkgFile)
+    }
     // await rmfr(this.depsPath) @TODO: Clean dependencies
     for (const [filePath, tmpFile] of Object.entries(this.backups)) {
       await writeFile(filePath, await readFile(tmpFile.path))
