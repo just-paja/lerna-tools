@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
-    "build": "babel ./lib ./bin -d dist --ignore '**/__tests__/**'",
+    "build": "babel ./lib -d dist --ignore '**/__tests__/**'",
     "prepublish": "npm test; npm run build",
     "test": "jest"
   },

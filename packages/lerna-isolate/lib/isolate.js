@@ -3,7 +3,7 @@
 const path = require('path')
 const yargs = require('yargs')
 
-const { findRoot, IsolatedProject, JobRunner } = require('../lib')
+const { findRoot, IsolatedProject, JobRunner } = require('.')
 
 function log (message) {
   process.stdout.write(message)
