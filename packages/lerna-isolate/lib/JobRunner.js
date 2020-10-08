@@ -1,11 +1,17 @@
 const ora = require('ora')
 
+class DummySpinner {
+  start () {}
+  stop () {}
+  succeed () {}
+}
+
 class JobRunner {
   jobsDone = 0
   jobsStarted = 0
   jobsTotal = 0
   masterText = null
-  spinner = ora()
+  spinner = process.stdout.isTTY ? ora() : new DummySpinner()
 
   addJobs (jobsCount) {
     this.jobsTotal += jobsCount

@@ -10,11 +10,6 @@ function log (message) {
   process.stdout.write('\n')
 }
 
-function advise (message) {
-  process.stderr.write(message)
-  process.stderr.write('\n')
-}
-
 async function isolatePackages (packages, options) {
   const root = await findRoot()
   const jobRunner = new JobRunner()
@@ -23,7 +18,7 @@ async function isolatePackages (packages, options) {
   const toIsolate = await resolvePackages(available, packages)
   await project.isolatePackages(toIsolate, options)
 
-  advise('Created:')
+  log('Created:')
   project.products
     .map(archive => path.relative(process.cwd(), archive))
     .sort((a, b) => a.localeCompare(b))
