@@ -170,7 +170,7 @@ class IsolatedPackage extends Package {
 
   getLinkedDependencies = async () => {
     const available = await this.project.getPackages()
-    const required = Object.keys(this.dependencies)
+    const required = Object.keys(this.dependencies || {})
     return available
       .filter(pkg => required.includes(pkg.name))
       .map(pkg => {
@@ -339,7 +339,7 @@ class IsolatedPackage extends Package {
     this.backups = {}
   }
 
-  isolate = async ({ extract, neutral, zip }) => {
+  isolate = async ({ extract, neutral, zip } = {}) => {
     const jobs = []
     if (!(await this.isPacked())) {
       jobs.push({ name: `Configure ${this.name}`, fn: this.configurePackage })

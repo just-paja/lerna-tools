@@ -5,7 +5,7 @@
     "@babel/plugin-transform-runtime"
   ],
   "only": [
-    "lib/*.js",
-    "bin/*.js"
+    "lib/**/*.js",
+    "bin/**/*.js"
   ]
 }

@@ -11,11 +11,6 @@ class IsolatedProject extends Project {
   tainted = []
   products = []
 
-  static async getPackages () {
-    const bare = await super.getPackages()
-    return bare.map(pkg => IsolatedPackage.from(pkg))
-  }
-
   async getPackages () {
     const bare = await super.getPackages()
     return bare.map(pkg =>
@@ -23,7 +18,12 @@ class IsolatedProject extends Project {
     )
   }
 
-  constructor (root, { reporter }) {
+  async getPackageNames () {
+    const packages = await this.getPackages()
+    return packages.map(pkg => pkg.name)
+  }
+
+  constructor (root, { reporter } = {}) {
     super(root)
     this.reporter = reporter
   }

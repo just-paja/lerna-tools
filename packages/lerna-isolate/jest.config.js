@@ -7,18 +7,24 @@ module.exports = {
       testPathIgnorePatterns: [
         '<rootDir>/coverage',
         '<rootDir>/node_modules/',
-        '<rootDir>/dist'
+        '<rootDir>/dist',
+        '/__fixtures__/'
       ]
     },
     {
       displayName: 'integration',
-      testPathIgnorePatterns: ['<rootDir>/node_modules/'],
-      collectCoverageFrom: ['src/**/*.{js,jsx}'],
-      coveragePathIgnorePatterns: ['/node_modules/', '/lib/'],
+      testPathIgnorePatterns: ['<rootDir>/node_modules/', '__fixtures__'],
       transform: {
         '^.+\\.(js|jsx)$': 'babel-jest'
       }
     }
+  ],
+  collectCoverage: true,
+  collectCoverageFrom: ['lib/*.js', 'bin/*.js'],
+  coveragePathIgnorePatterns: [
+    '**/node_modules/**',
+    '**/coverage/**',
+    '**/__tests__/**'
   ],
   watchPlugins: [
     'jest-watch-typeahead/filename',

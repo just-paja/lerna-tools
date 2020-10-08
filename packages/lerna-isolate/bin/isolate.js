@@ -42,9 +42,9 @@ async function resolvePackages (available, packageList) {
 async function printPackages () {
   const root = await findRoot()
   const project = new IsolatedProject(root)
-  const packages = await project.getPackages()
-  for (const pkg of packages) {
-    log(pkg.name)
+  const packages = await project.getPackageNames()
+  for (const pkgName of packages) {
+    log(pkgName)
   }
 }
 
