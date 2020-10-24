@@ -1,6 +1,6 @@
 {
   "name": "lerna-isolate",
-  "version": "0.4.2-0",
+  "version": "0.4.2-alpha.1",
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
     "build": "babel ./lib -d dist --ignore '**/__tests__/**'",
