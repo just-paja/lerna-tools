@@ -54,6 +54,7 @@
     "standard": "^15.0.0"
   },
   "dependencies": {
+    "@babel/runtime": "^7.12.1",
     "@lerna/project": "^3.21.0",
     "archiver": "^5.0.2",
     "ora": "^5.1.0",
