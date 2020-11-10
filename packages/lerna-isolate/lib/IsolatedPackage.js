@@ -145,7 +145,10 @@ class IsolatedPackage extends Package {
     if (!files) {
       throw new MisconfiguredFilesError(this.name)
     }
-    this.set('files', [...files, `${this.isolatedPackagePrefix}*.tgz`])
+    const lernaRecord = `${this.isolatedPackagePrefix}*.tgz`
+    if (!files.includes(lernaRecord)) {
+      this.set('files', [...files])
+    }
     await this.serialize()
   }
 
