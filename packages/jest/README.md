@@ -48,5 +48,7 @@ Some plugins are automatically recognized, you only need to install them:
 * [jest-date-mock](https://www.npmjs.com/package/jest-date-mock)
 * [jest-enzyme](https://www.npmjs.com/package/jest-enzyme)
 * [jest-extended](https://www.npmjs.com/package/jest-extended)
+* [jest-runner-eslint](https://www.npmjs.com/package/jest-runner-eslint)
+* [jest-runner-standard](https://www.npmjs.com/package/jest-runner-standard)
 * [jest-watch-select-projects](https://www.npmjs.com/package/jest-watch-select-projects)
 * [jest-watch-typeahead](https://www.npmjs.com/package/jest-watch-typeahead)

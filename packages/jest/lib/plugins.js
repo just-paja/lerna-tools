@@ -12,6 +12,7 @@ function testPluginExistence (pluginName) {
 function getWatchPlugins (extra) {
   return [
     ...[
+      'jest-runner-eslint/watch-fix',
       'jest-watch-select-projects',
       'jest-watch-typeahead/filename',
       'jest-watch-typeahead/testname'
