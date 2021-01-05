@@ -1,0 +1,41 @@
+{
+  "name": "@lerna-tools/jest",
+  "version": "0.0.0",
+  "description": "Fun to use jest configurator compatible with lerna",
+  "keywords": [
+    "jest",
+    "configure",
+    "test",
+    "lerna"
+  ],
+  "author": "just-paja <pavel@zak.global>",
+  "homepage": "https://github.com/just-paja/lerna-jest/tree/master/packages/lerna-jest#readme",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "standard": {
+    "env": [
+      "jest"
+    ],
+    "parser": "babel-eslint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/just-paja/lerna-jest.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/just-paja/lerna-jest/issues"
+  },
+  "peerDependencies": {
+    "@lerna/project": "^3.21.0"
+  }
+}
