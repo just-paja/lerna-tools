@@ -1,27 +1,12 @@
 {
-  "name": "@lerna-tools",
-  "version": "1.0.0",
-  "description": "Fun to use jest configuration helper",
-  "main": "index.js",
+  "name": "root",
+  "version": "0.1.0",
+  "author": "Pavel Žák <pavel@zak.global>",
+  "license": "MIT",
+  "private": true,
   "scripts": {
     "test": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/just-paja/lerna-jest.git"
-  },
-  "keywords": [
-    "jest",
-    "lerna",
-    "test",
-    "configure"
-  ],
-  "author": "Pavel Žák <pavel@zak.global>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/just-paja/lerna-jest/issues"
-  },
-  "homepage": "https://github.com/just-paja/lerna-jest#readme",
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "lerna": "^3.20.2",
