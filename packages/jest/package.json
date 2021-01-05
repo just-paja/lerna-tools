@@ -1,6 +1,6 @@
 {
   "name": "@lerna-tools/jest",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Fun to use jest configurator compatible with lerna",
   "keywords": [
     "jest",
