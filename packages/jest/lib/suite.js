@@ -16,7 +16,12 @@ function configureSuite (rootDir, ident, config = {}) {
     rootDir,
     roots: ['<rootDir>'],
     moduleFileExtensions: ['js', 'jsx', 'json', 'mjs', 'node'],
-    testPathIgnorePatterns: ['/coverage/', '/node_modules/', '/static/'],
+    testPathIgnorePatterns: [
+      '/coverage/',
+      '/node_modules/',
+      '/static/',
+      '/dist/'
+    ],
     transform: {
       '^.+\\.(js|jsx|mjs)$': 'babel-jest'
     },
