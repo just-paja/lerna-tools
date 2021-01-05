@@ -9,7 +9,7 @@
     "lerna"
   ],
   "author": "just-paja <pavel@zak.global>",
-  "homepage": "https://github.com/just-paja/lerna-jest/tree/master/packages/lerna-jest#readme",
+  "homepage": "https://github.com/just-paja/lerna-jest/tree/master/packages/jest#readme",
   "license": "MIT",
   "main": "lib/index.js",
   "directories": {
