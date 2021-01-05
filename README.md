@@ -1,2 +1,5 @@
-# lerna-jest
-Fun to use jest configurator compatible with lerna
+# lerna-tools
+
+Collection of tools that make developers using Lerna even happier.
+
+* [lerna-jest](./packages/jest) to minimize jest configuration
