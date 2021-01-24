@@ -11,10 +11,7 @@
     "test": "__tests__"
   },
   "files": [
-    "lib",
-    "isolated-*.tgz",
-    "isolated-*.tgz",
-    "isolated-*.tgz"
+    "lib"
   ],
   "repository": {
     "type": "git",
