@@ -4,6 +4,7 @@ const { getPackagesSync } = require('@lerna/project')
 const { getWatchPlugins } = require('./plugins')
 
 function configureProject (rootDir, projects, config = {}) {
+  process.env.NODE_PATH = path.join(rootDir, '..', 'packages')
   return {
     collectCoverageFrom: [
       '**/*.js',
@@ -29,7 +30,9 @@ function configureRoot (directory, config) {
     (aggr, pkg) => aggr.concat(getPackageTestProjects(pkg)),
     []
   )
-  return configureProject(directory, projects, config)
+  const rootConfig = configureProject(directory, projects, config)
+  process.env.NODE_PATH = path.join(directory, 'packages')
+  return rootConfig
 }
 
 module.exports = {

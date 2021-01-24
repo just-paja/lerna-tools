@@ -14,7 +14,6 @@ npm install -d jest lerna-jest
 
 ```
 const { guessRootConfig } = require('lerna-jest')
-process.env.NODE_PATH = require('path').join(__dirname, 'packages')
 module.exports = guessRootConfig(__dirname)
 ```
 
