@@ -1,6 +1,10 @@
 const path = require('path')
 
-const { getSetupFiles, getSetupFilesAfterEnv } = require('./plugins')
+const {
+  getSetupFiles,
+  getSetupFilesAfterEnv,
+  getTransforms
+} = require('./plugins')
 
 let filterFn = name => name
 
@@ -16,15 +20,8 @@ function configureSuite (rootDir, ident, config = {}) {
     rootDir,
     roots: ['<rootDir>'],
     moduleFileExtensions: ['js', 'jsx', 'json', 'mjs', 'node'],
-    testPathIgnorePatterns: [
-      '/coverage/',
-      '/node_modules/',
-      '/static/',
-      '/dist/'
-    ],
-    transform: {
-      '^.+\\.(js|jsx|mjs)$': 'babel-jest'
-    },
+    testPathIgnorePatterns: ['/coverage/', '/node_modules/', '/static/'],
+    transform: getTransforms(config.transforms),
     ...config,
     setupFiles: getSetupFiles(rootDir, config.setupFiles),
     setupFilesAfterEnv: getSetupFilesAfterEnv(

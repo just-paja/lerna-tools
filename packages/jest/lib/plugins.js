@@ -9,6 +9,21 @@ function testPluginExistence (pluginName) {
   }
 }
 
+function getTransforms (extra) {
+  return Object.entries({
+    '^.+\\.(js|jsx|mjs)$': 'babel-jest',
+    '.+\\.(css|styl|less|sass|scss)$': 'jest-css-modules-transform'
+  })
+    .filter(([match, transformModule]) => testPluginExistence(transformModule))
+    .reduce(
+      (aggr, [match, transformModule]) => ({
+        ...aggr,
+        [match]: transformModule
+      }),
+      {}
+    )
+}
+
 function getWatchPlugins (extra) {
   return [
     ...[
@@ -46,6 +61,7 @@ function getSetupFilesAfterEnv (directory, extra) {
 module.exports = {
   getSetupFiles,
   getSetupFilesAfterEnv,
+  getTransforms,
   getWatchPlugins,
   testPluginExistence
 }
