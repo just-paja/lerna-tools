@@ -12,5 +12,9 @@
     "lerna": "^3.20.2",
     "prettier-standard": "^16.4.1",
     "standard": "^16.0.3"
+  },
+  "dependencies": {
+    "lerna-jest": "file:packages/jest",
+    "lerna-ministack": "file:packages/ministack"
   }
 }
