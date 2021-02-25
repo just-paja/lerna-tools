@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "build": "lerna run build --stream --parallel",
     "test": "jest"
   },
   "devDependencies": {
