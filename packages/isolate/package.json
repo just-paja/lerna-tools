@@ -4,10 +4,6 @@
   "description": "Extract your app from lerna repository with local package dependencies",
   "scripts": {
     "build": "babel ./lib -d dist --ignore '**/__tests__/**'",
-    "prepack": "npm run build",
-    "prepare": "npm run build",
-    "install": "npm run build",
-    "prepublish": "npm run build",
     "test": "jest"
   },
   "bin": {
