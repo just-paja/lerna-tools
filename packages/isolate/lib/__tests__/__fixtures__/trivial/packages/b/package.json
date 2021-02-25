@@ -1,11 +1,11 @@
 {
-  "name": "a",
+  "name": "b",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "Pavel Žák <pavel@zak.global>",
   "homepage": "https://github.com/just-paja/lerna-isolate#readme",
   "license": "ISC",
-  "main": "lib/a.js",
+  "main": "lib/b.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -17,10 +17,19 @@
     "type": "git",
     "url": "git+https://github.com/just-paja/lerna-isolate.git"
   },
+  "standard": {
+    "env": [
+      "jest"
+    ],
+    "parser": "babel-eslint"
+  },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/just-paja/lerna-isolate/issues"
+  },
+  "dependencies": {
+    "a": "^0.0.0"
   }
 }

@@ -26,4 +26,4 @@ jobs:
       - name: Run tests
         run: npm test -- --coverage
       - name: Build the package
-        run: npm run build
+        run: lerna run build --parallel --stream

@@ -24,7 +24,8 @@ function configureSuite (rootDir, ident, config = {}) {
       '/coverage/',
       '/node_modules/',
       '/static/',
-      '/dist/'
+      '/dist/',
+      '__fixtures__'
     ],
     transform: getTransforms(config.transforms),
     ...config,
