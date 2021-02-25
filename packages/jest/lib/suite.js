@@ -21,11 +21,11 @@ function configureSuite (rootDir, ident, config = {}) {
     roots: ['<rootDir>'],
     moduleFileExtensions: ['js', 'jsx', 'json', 'mjs', 'node'],
     testPathIgnorePatterns: [
+      '/__fixtures__/',
       '/coverage/',
       '/node_modules/',
       '/static/',
-      '/dist/',
-      '__fixtures__'
+      '/dist/'
     ],
     transform: getTransforms(config.transforms),
     ...config,
