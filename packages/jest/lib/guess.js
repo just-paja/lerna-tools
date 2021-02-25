@@ -1,3 +1,5 @@
+const path = require('path')
+
 const { configureLinter } = require('./linter')
 const { configureProject } = require('./project')
 const { configureSuite } = require('./suite')
@@ -15,13 +17,15 @@ function guessProjectConfig (rootDir) {
 
 function guessRootConfig (directory) {
   const packages = getPackagesSync(directory)
-  return configureProject(
+  const project = configureProject(
     directory,
     packages.reduce(
       (aggr, pkg) => aggr.concat(guessProjectConfig(pkg.location).projects),
       []
     )
   )
+  process.env.NODE_PATH = path.join(directory, 'packages')
+  return project
 }
 
 module.exports = {

@@ -30,9 +30,7 @@ function configureRoot (directory, config) {
     (aggr, pkg) => aggr.concat(getPackageTestProjects(pkg)),
     []
   )
-  const rootConfig = configureProject(directory, projects, config)
-  process.env.NODE_PATH = path.join(directory, 'packages')
-  return rootConfig
+  return configureProject(directory, projects, config)
 }
 
 module.exports = {
