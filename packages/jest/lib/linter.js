@@ -7,14 +7,12 @@ function configureLinter (rootDir) {
   if (testPluginExistence('jest-runner-standard')) {
     return configureSuite(rootDir, 'linter', {
       runner: 'jest-runner-standard',
-      setupFilesAfterEnv: [],
       testMatch
     })
   }
   if (testPluginExistence('jest-runner-eslint')) {
     return configureSuite(rootDir, 'linter', {
       runner: 'jest-runner-eslint',
-      setupFilesAfterEnv: [],
       testMatch
     })
   }

@@ -2,7 +2,7 @@ const path = require('path')
 
 const { configureLinter } = require('./linter')
 const { configureProject } = require('./project')
-const { configureSuite } = require('./suite')
+const { configureIntegration } = require('./integration')
 const { getPackagesSync } = require('@lerna/project')
 
 function nonEmpty (item) {
@@ -10,7 +10,7 @@ function nonEmpty (item) {
 }
 
 function guessProjectConfig (rootDir) {
-  const integration = configureSuite(rootDir, 'integration')
+  const integration = configureIntegration(rootDir)
   const linter = configureLinter(rootDir)
   return configureProject(rootDir, [integration, linter].filter(nonEmpty))
 }
