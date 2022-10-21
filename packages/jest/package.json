@@ -1,6 +1,6 @@
 {
   "name": "lerna-jest",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Fun to use jest configurator compatible with lerna",
   "keywords": [
     "jest",
