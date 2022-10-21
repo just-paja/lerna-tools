@@ -8,6 +8,7 @@ function configureProject (rootDir, projects, config = {}) {
   return {
     collectCoverageFrom: [
       '**/*.js',
+      '**/*.mjs',
       '!**/__fixtures__/**',
       '!**/static/**',
       '!**/coverage/**',
