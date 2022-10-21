@@ -27,12 +27,12 @@ function configureSuite (rootDir, ident, config = {}) {
       '/dist/'
     ],
     transform: getTransforms(config.transforms),
-    ...config,
     setupFiles: getSetupFiles(rootDir, config.setupFiles),
     setupFilesAfterEnv: getSetupFilesAfterEnv(
       rootDir,
       config.setupFilesAfterEnv
-    )
+    ),
+    ...config
   }
 }
 
