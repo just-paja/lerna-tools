@@ -15,8 +15,7 @@ function filterSuiteName (fn) {
 function configureSuite (rootDir, ident, config = {}) {
   const pkg = require(path.join(rootDir, 'package.json'))
   return {
-    displayName: getSuiteName(pkg, ident),
-    name: getSuiteIdent(pkg, ident),
+    displayName: getSuiteIdent(pkg, ident),
     rootDir,
     roots: ['<rootDir>'],
     moduleFileExtensions: ['js', 'jsx', 'json', 'mjs', 'node'],
