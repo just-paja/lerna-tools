@@ -37,11 +37,7 @@ function configureSuite (rootDir, ident, config = {}) {
 }
 
 function getSuiteIdent (pkg, specifier) {
-  return `${pkg.name}-${specifier}`
-}
-
-function getSuiteName (pkg, specifier) {
-  return filterFn(`${pkg.name} ${specifier}`)
+  return filterFn(`${pkg.name}-${specifier}`)
 }
 
 module.exports = {
