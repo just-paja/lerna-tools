@@ -11,6 +11,7 @@ function configureProject (rootDir, projects, config = {}) {
       '**/*.jsx',
       '**/*.mjs',
       '!**/__fixtures__/**',
+      '!**/__samples__/**',
       '!**/static/**',
       '!**/coverage/**',
       '!jest.*'
