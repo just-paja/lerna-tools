@@ -6,7 +6,6 @@
   "private": true,
   "scripts": {
     "build": "lerna run build --stream --parallel",
-    "publish-all": "lerna publish from-package",
     "test": "jest"
   },
   "devDependencies": {
