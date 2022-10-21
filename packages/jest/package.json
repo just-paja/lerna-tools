@@ -36,6 +36,6 @@
     "url": "https://github.com/just-paja/lerna-jest/issues"
   },
   "peerDependencies": {
-    "@lerna/project": "^3.21.0"
+    "@lerna/project": ">=3.21.0"
   }
 }
