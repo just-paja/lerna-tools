@@ -13,6 +13,7 @@ function configureProject (rootDir, projects, config = {}) {
       '!**/__fixtures__/**',
       '!**/__samples__/**',
       '!**/__jest__/**',
+      '!**/dist/**',
       '!**/static/**',
       '!**/coverage/**',
       '!jest.*'
