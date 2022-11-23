@@ -1,6 +1,6 @@
 {
   "name": "lerna-ministack",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Miniature stack intended to speed up lerna development. Includes jest, standard, prettier. Does not do anything by itself",
   "author": "Pavel Žák <pavel@zak.global>",
   "homepage": "https://github.com/just-paja/lerna-tools#readme",
@@ -32,8 +32,8 @@
     "jest-watch-select-projects": "^2.0.0",
     "jest-watch-typeahead": "^0.6.1",
     "lerna": "^3.22.1",
-    "lerna-isolate": "^0.5.6",
-    "lerna-jest": "^0.5.6",
+    "lerna-isolate": "^0.5.7",
+    "lerna-jest": "^0.5.7",
     "prettier-standard": "^16.4.1",
     "standard": "^16.0.3"
   }

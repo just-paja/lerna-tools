@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.7](https://github.com/just-paja/lerna-jest/compare/v0.5.6...v0.5.7) (2022-11-23)
+
+
+### Bug Fixes
+
+* ignore dist files ([5c6867d](https://github.com/just-paja/lerna-jest/commit/5c6867dd4d32021314f6eb7c27e36d452b216113))
+* ignore jest files ([9a66ad6](https://github.com/just-paja/lerna-jest/commit/9a66ad6d802907430afb636848599769b75e76b2))
+
+
+
+
+
 ## [0.5.5](https://github.com/just-paja/lerna-jest/compare/v0.5.4...v0.5.5) (2022-10-21)
 
 
