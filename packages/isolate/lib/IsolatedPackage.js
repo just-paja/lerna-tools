@@ -153,6 +153,9 @@ class IsolatedPackage extends Package {
   }
 
   backupFile = async filePath => {
+    if (this.backups[filePath]) {
+      return this.backups[filePath]
+    }
     try {
       await stat(filePath)
     } catch (e) {
@@ -254,13 +257,17 @@ class IsolatedPackage extends Package {
     this.storeDependencies(this.integratedDependencies)
   }
 
-  installStoredDependencies = async () => {
-    const paths = this.integratedDependencies
-      .map(this.getDependencyPath)
-      .map(depPath => `./${path.relative(this.location, depPath)}`)
-    await execute(`npm install ${paths.join(' ')} --only=production`, {
-      cwd: this.location
-    })
+  referenceStoredDependency = async dep => {
+    const npmPackage = require(this.manifestLocation)
+    const versionRef = `file:isolated-${dep.name}-${dep.version}.tgz`
+    npmPackage.dependencies[dep.name] = versionRef
+    await writeFile(this.manifestLocation, JSON.stringify(npmPackage, null, 2))
+  }
+
+  referenceStoredDependencies = async () => {
+    for (const dep of this.integratedDependencies) {
+      await this.referenceStoredDependency(dep)
+    }
   }
 
   isolateDeps = async isolateOps => {
@@ -269,7 +276,7 @@ class IsolatedPackage extends Package {
     if (linkedDeps.length) {
       await this.integrateDependencies(linkedDeps, isolateOps)
       await this.storeIntegratedDependencies()
-      await this.installStoredDependencies()
+      await this.referenceStoredDependencies()
     }
   }
 
