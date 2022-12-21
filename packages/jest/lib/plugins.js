@@ -1,9 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 
+function parsePluginName (pluginName) {
+  return Array.isArray(pluginName) ? pluginName[0] : pluginName
+}
+
 function testPluginExistence (pluginName) {
   try {
-    return require.resolve(pluginName)
+    return require.resolve(parsePluginName(pluginName))
   } catch (e) {
     return null
   }
@@ -11,7 +15,7 @@ function testPluginExistence (pluginName) {
 
 function getTransforms (extra) {
   return Object.entries({
-    '^.+\\.(js|jsx|mjs)$': 'babel-jest',
+    '^.+\\.(js|jsx|mjs)$': ['babel-jest', { rootMode: 'upward' }],
     '.+\\.(css|styl|less|sass|scss)$': 'jest-css-modules-transform'
   })
     .filter(([match, transformModule]) => testPluginExistence(transformModule))
