@@ -1,12 +1,15 @@
-const archiver = require('archiver')
-const Package = require('@lerna/package')
-const path = require('path')
-const tar = require('tar')
-const tmp = require('tmp-promise')
-const zlib = require('zlib')
+import archiver from 'archiver'
+import path from 'path'
+import tar from 'tar'
+import tmp from 'tmp-promise'
+import zlib from 'zlib'
 
-const { createReadStream, createWriteStream, promises, write } = require('fs')
-const {
+import { createReadStream, createWriteStream, write } from 'fs'
+import { execute } from './cli.mjs'
+import { Package } from '@lerna/package'
+import { promisify } from 'util'
+
+import {
   copyFile,
   mkdir,
   readdir,
@@ -15,14 +18,12 @@ const {
   symlink,
   unlink,
   writeFile
-} = promises
-const { execute } = require('./cli')
-const { promisify } = require('util')
-const {
+} from 'fs/promises'
+import {
   PackageDoesNotExistError,
   PrivatePackageError,
   MisconfiguredFilesError
-} = require('./errors')
+} from './errors.mjs'
 
 const writeFd = promisify(write)
 
@@ -387,8 +388,4 @@ export class IsolatedPackage extends Package {
     }
     await this.reporter.runJobs(jobs)
   }
-}
-
-module.exports = {
-  IsolatedPackage
 }

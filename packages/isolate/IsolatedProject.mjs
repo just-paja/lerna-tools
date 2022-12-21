@@ -1,7 +1,7 @@
 import path from 'path'
-import Project from '@lerna/project'
 
 import { IsolatedPackage } from './IsolatedPackage.mjs'
+import { Project } from '@lerna/project'
 import { mkdir } from 'fs/promises'
 
 export class IsolatedProject extends Project {

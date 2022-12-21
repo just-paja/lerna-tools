@@ -1,5 +1,3 @@
-const ora = require('ora')
-
 class DummySpinner {
   start () {}
   stop () {}
@@ -12,7 +10,10 @@ export class JobRunner {
     this.jobsStarted = 0
     this.jobsTotal = 0
     this.masterText = null
-    this.spinner = process.stdout.isTTY ? ora() : new DummySpinner()
+    this.initializeSpinner =
+      process.env.NODE_ENV !== 'test' && process.stdout.isTTY
+        ? async () => (await import('ora')).default()
+        : () => new DummySpinner()
   }
 
   addJobs (jobsCount) {
@@ -42,7 +43,12 @@ export class JobRunner {
     return `${' '.repeat(3 - value.length)}${value}%`
   }
 
+  async initialize () {
+    this.spinner = await this.initializeSpinner()
+  }
+
   async runJobs (jobs) {
+    await this.initialize()
     this.addJobs(jobs.length)
     for (const job of jobs) {
       if (!this.spinner.isSpinning) {

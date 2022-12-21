@@ -4,7 +4,7 @@ import { sep, normalize, join } from 'path'
 const configName = 'lerna.json'
 
 export async function findRoot (start) {
-  start = start || module.parent.filename
+  start = start || process.cwd()
   if (typeof start === 'string') {
     if (start[start.length - 1] !== sep) {
       start += sep

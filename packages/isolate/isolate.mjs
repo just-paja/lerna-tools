@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
-const path = require('path')
-const yargs = require('yargs')
+import path from 'path'
+import yargs from 'yargs'
 
-const { findRoot, IsolatedProject, JobRunner } = require('.')
+import { hideBin } from 'yargs/helpers'
+import { findRoot } from './paths.mjs'
+import { JobRunner } from './JobRunner.mjs'
+import { IsolatedProject } from './IsolatedProject.mjs'
 
 function log (message) {
   process.stdout.write(message)
@@ -43,56 +46,41 @@ async function printPackages () {
   }
 }
 
-async function main () {
-  try {
-    yargs
-      .command(
-        'bundle [packages..]',
-        'bundle packages',
-        yargs => {
-          yargs
-            .positional('packages', {
-              describe: 'list of packages'
-            })
-            .option('extract', {
-              alias: 'e',
-              type: 'boolean',
-              description: 'Leave generated output extracted'
-            })
-            .option('neutral', {
-              alias: 'n',
-              type: 'boolean',
-              description: 'Keep only version neutral outputs'
-            })
-            .option('zip', {
-              alias: 'z',
-              type: 'boolean',
-              description: 'Produce zip archive instead of npm package'
-            })
-            .alias('z', 'gcp')
-        },
-        async argv =>
-          await isolatePackages(argv.packages, {
-            extract: Boolean(argv.extract),
-            neutral: Boolean(argv.neutral),
-            zip: Boolean(argv.zip)
-          })
-      )
-      .command('list', 'list packages', printPackages)
-      .help('h')
-      .alias('h', 'help')
-      .demandCommand()
-      .parse()
-  } catch (e) {
-    if (e.stdout) {
-      console.error(e.stdout)
-    }
-    if (e.stderr) {
-      console.error(e.stderr)
-    }
-    console.error(e)
-    process.exit(255)
-  }
-}
-
-main()
+yargs(hideBin(process.argv))
+  .command(
+    'bundle [packages..]',
+    'bundle packages',
+    yargs => {
+      yargs
+        .positional('packages', {
+          describe: 'list of packages'
+        })
+        .option('extract', {
+          alias: 'e',
+          type: 'boolean',
+          description: 'Leave generated output extracted'
+        })
+        .option('neutral', {
+          alias: 'n',
+          type: 'boolean',
+          description: 'Keep only version neutral outputs'
+        })
+        .option('zip', {
+          alias: 'z',
+          type: 'boolean',
+          description: 'Produce zip archive instead of npm package'
+        })
+        .alias('z', 'gcp')
+    },
+    async argv =>
+      await isolatePackages(argv.packages, {
+        extract: Boolean(argv.extract),
+        neutral: Boolean(argv.neutral),
+        zip: Boolean(argv.zip)
+      })
+  )
+  .command('list', 'list packages', printPackages)
+  .help('h')
+  .alias('h', 'help')
+  .demandCommand()
+  .parse()

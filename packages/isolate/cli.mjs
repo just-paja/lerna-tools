@@ -1,4 +1,4 @@
-const childProcess = require('child_process')
+import childProcess from 'child_process'
 
 export async function execute (cmd, options) {
   return await new Promise((resolve, reject) => {
