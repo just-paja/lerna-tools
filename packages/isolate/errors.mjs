@@ -1,8 +1,8 @@
-class PrivatePackageError extends Error {
-  isPrivate = true
-}
+export class PrivatePackageError extends Error {}
 
-class PackageDoesNotExistError extends Error {
+PrivatePackageError.prototype.isPrivate = true
+
+export class PackageDoesNotExistError extends Error {
   static fromError (error) {
     const result = new this(error.message)
     result.code = error.code
@@ -12,17 +12,11 @@ class PackageDoesNotExistError extends Error {
   }
 }
 
-class MisconfiguredFilesError extends Error {
+export class MisconfiguredFilesError extends Error {
   constructor (packageName) {
     super(
       `Module ${packageName} does not have "files" key configured in package.json`
     )
     this.packageName = packageName
   }
-}
-
-module.exports = {
-  MisconfiguredFilesError,
-  PackageDoesNotExistError,
-  PrivatePackageError
 }

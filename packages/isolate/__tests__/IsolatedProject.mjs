@@ -1,12 +1,12 @@
-const path = require('path')
-const rimraf = require('rimraf')
-const tar = require('tar')
-const zlib = require('zlib')
+import path from 'path'
+import rimraf from 'rimraf'
+import tar from 'tar'
+import zlib from 'zlib'
 
-const { createReadStream } = require('fs')
-const { dir } = require('tmp-promise')
-const { readFile } = require('fs/promises')
-const { IsolatedProject } = require('..')
+import { createReadStream } from 'fs'
+import { dir } from 'tmp-promise'
+import { readFile } from 'fs/promises'
+import { IsolatedProject } from '..'
 
 class DummyReporter {
   async runJobs (jobs) {

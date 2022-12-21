@@ -1,6 +1,6 @@
 const childProcess = require('child_process')
 
-async function execute (cmd, options) {
+export async function execute (cmd, options) {
   return await new Promise((resolve, reject) => {
     childProcess.exec(cmd, options, (err, stdout, stderr) => {
       if (err) {
@@ -12,8 +12,4 @@ async function execute (cmd, options) {
       }
     })
   })
-}
-
-module.exports = {
-  execute
 }

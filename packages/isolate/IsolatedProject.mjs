@@ -1,15 +1,18 @@
-const path = require('path')
-const Project = require('@lerna/project')
+import path from 'path'
+import Project from '@lerna/project'
 
-const { IsolatedPackage } = require('./IsolatedPackage.js')
-const { promises } = require('fs')
-const { mkdir } = promises
+import { IsolatedPackage } from './IsolatedPackage.mjs'
+import { mkdir } from 'fs/promises'
 
-class IsolatedProject extends Project {
-  onProgress = null
-  isolated = {}
-  tainted = []
-  products = []
+export class IsolatedProject extends Project {
+  constructor (root, { reporter } = {}) {
+    super(root)
+    this.isolated = {}
+    this.onProgress = null
+    this.products = []
+    this.reporter = reporter
+    this.tainted = []
+  }
 
   async getPackages () {
     const bare = await super.getPackages()
@@ -21,11 +24,6 @@ class IsolatedProject extends Project {
   async getPackageNames () {
     const packages = await this.getPackages()
     return packages.map(pkg => pkg.name)
-  }
-
-  constructor (root, { reporter } = {}) {
-    super(root)
-    this.reporter = reporter
   }
 
   get distPath () {
@@ -73,8 +71,4 @@ class IsolatedProject extends Project {
   }
 
   reportProgress () {}
-}
-
-module.exports = {
-  IsolatedProject
 }

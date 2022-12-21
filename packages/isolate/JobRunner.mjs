@@ -6,12 +6,14 @@ class DummySpinner {
   succeed () {}
 }
 
-class JobRunner {
-  jobsDone = 0
-  jobsStarted = 0
-  jobsTotal = 0
-  masterText = null
-  spinner = process.stdout.isTTY ? ora() : new DummySpinner()
+export class JobRunner {
+  constructor () {
+    this.jobsDone = 0
+    this.jobsStarted = 0
+    this.jobsTotal = 0
+    this.masterText = null
+    this.spinner = process.stdout.isTTY ? ora() : new DummySpinner()
+  }
 
   addJobs (jobsCount) {
     this.jobsTotal += jobsCount
@@ -51,8 +53,4 @@ class JobRunner {
       this.finishJob(job)
     }
   }
-}
-
-module.exports = {
-  JobRunner
 }

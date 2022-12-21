@@ -1,5 +1,3 @@
-const { filterSuiteName, guessRootConfig } = require('lerna-jest')
-
-filterSuiteName(name => name.replace(/^ig11-/, ''))
+const { guessRootConfig } = require('lerna-jest')
 
 module.exports = guessRootConfig(__dirname)

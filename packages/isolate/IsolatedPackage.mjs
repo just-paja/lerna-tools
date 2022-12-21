@@ -46,14 +46,7 @@ async function ensureUnlink (...args) {
   }
 }
 
-class IsolatedPackage extends Package {
-  backups = {}
-  integratedDependencies = []
-  storedDependencies = []
-  parentPackage = null
-  project = null
-  isolatedPackagePrefix = 'isolated-'
-
+export class IsolatedPackage extends Package {
   static from (pkgInstance, config) {
     return new IsolatedPackage(
       pkgInstance.toJSON(),
@@ -65,8 +58,13 @@ class IsolatedPackage extends Package {
 
   constructor (pkg, location, rootPath, { project, reporter } = {}) {
     super(pkg, location, rootPath)
+    this.backups = {}
+    this.integratedDependencies = []
+    this.isolatedPackagePrefix = 'isolated-'
+    this.parentPackage = null
     this.project = project
     this.reporter = reporter
+    this.storedDependencies = []
   }
 
   get packageName () {
@@ -132,7 +130,7 @@ class IsolatedPackage extends Package {
     return 1 + this.parent.depsPathLevel
   }
 
-  isPacked = async () => {
+  async isPacked () {
     try {
       return Boolean(await stat(this.packageDefaultPath))
     } catch (e) {
@@ -140,7 +138,7 @@ class IsolatedPackage extends Package {
     }
   }
 
-  configurePackage = async () => {
+  async configurePackage () {
     const files = this.get('files')
     if (!files) {
       throw new MisconfiguredFilesError(this.name)
@@ -152,7 +150,7 @@ class IsolatedPackage extends Package {
     await this.serialize()
   }
 
-  backupFile = async filePath => {
+  async backupFile (filePath) {
     if (this.backups[filePath]) {
       return this.backups[filePath]
     }
@@ -167,14 +165,14 @@ class IsolatedPackage extends Package {
     return tmpFile
   }
 
-  backupConfig = async () => {
+  backupConfig () {
     return Promise.all([
       this.backupFile(this.manifestLocation),
       this.backupFile(this.manifestLockLocation)
     ])
   }
 
-  getLinkedDependencies = async () => {
+  async getLinkedDependencies () {
     const available = await this.project.getPackages()
     const required = Object.keys(this.dependencies || {})
     return available
@@ -185,7 +183,7 @@ class IsolatedPackage extends Package {
       })
   }
 
-  installPublishedVersion = async dep => {
+  async installPublishedVersion (dep) {
     if (dep.private) {
       throw new PrivatePackageError(
         `Cannot install ${dep.name}@${dep.version} because it is private`
@@ -206,7 +204,7 @@ class IsolatedPackage extends Package {
     }
   }
 
-  integrateDependency = async (dep, isolateOps) => {
+  async integrateDependency (dep, isolateOps) {
     try {
       return await this.installPublishedVersion(dep)
     } catch (e) {
@@ -222,7 +220,7 @@ class IsolatedPackage extends Package {
     }
   }
 
-  integrateDependencies = async (deps, isolateOps) => {
+  async integrateDependencies (deps, isolateOps) {
     const integrated = []
 
     for (const dep of deps) {
@@ -234,21 +232,25 @@ class IsolatedPackage extends Package {
     this.integratedDependencies = integrated
   }
 
-  getDependencyPath = pkg =>
-    path.join(this.depsPath, `${this.isolatedPackagePrefix}${pkg.packageName}`)
+  getDependencyPath (pkg) {
+    return path.join(
+      this.depsPath,
+      `${this.isolatedPackagePrefix}${pkg.packageName}`
+    )
+  }
 
-  storeDependency = async dep => {
+  async storeDependency (dep) {
     await copyFile(dep.packageDefaultPath, this.getDependencyPath(dep))
     await this.storeDependencies(await dep.getLinkedDependencies())
   }
 
-  storeDependencies = async dependencies => {
+  async storeDependencies (dependencies) {
     for (const dep of dependencies) {
       await this.storeDependency(dep)
     }
   }
 
-  storeIntegratedDependencies = async () => {
+  async storeIntegratedDependencies () {
     if (this.integratedDependencies.length) {
       try {
         await mkdir(this.depsPath)
@@ -257,20 +259,20 @@ class IsolatedPackage extends Package {
     this.storeDependencies(this.integratedDependencies)
   }
 
-  referenceStoredDependency = async dep => {
+  async referenceStoredDependency (dep) {
     const npmPackage = require(this.manifestLocation)
     const versionRef = `file:isolated-${dep.name}-${dep.version}.tgz`
     npmPackage.dependencies[dep.name] = versionRef
     await writeFile(this.manifestLocation, JSON.stringify(npmPackage, null, 2))
   }
 
-  referenceStoredDependencies = async () => {
+  async referenceStoredDependencies () {
     for (const dep of this.integratedDependencies) {
       await this.referenceStoredDependency(dep)
     }
   }
 
-  isolateDeps = async isolateOps => {
+  async isolateDeps (isolateOps) {
     const linkedDeps = await this.getLinkedDependencies()
 
     if (linkedDeps.length) {
@@ -280,14 +282,14 @@ class IsolatedPackage extends Package {
     }
   }
 
-  pack = async () => {
+  async pack () {
     await execute('npm pack', {
       cwd: this.location
     })
     this.project.addProduct(this.packageDefaultPath)
   }
 
-  store = async ({ neutral }) => {
+  async store ({ neutral }) {
     const packagePath = neutral
       ? this.versionNeutralPackagePath
       : this.packagePath
@@ -295,7 +297,7 @@ class IsolatedPackage extends Package {
     this.project.addProduct(packagePath)
   }
 
-  extract = async () => {
+  async extract () {
     await mkdir(this.extractedPath, { recursive: true })
     await new Promise((resolve, reject) => {
       createReadStream(this.packageDefaultPath)
@@ -312,7 +314,7 @@ class IsolatedPackage extends Package {
     this.project.addProduct(this.extractedPath)
   }
 
-  zip = async ({ neutral }) => {
+  async zip ({ neutral }) {
     const output = createWriteStream(this.zipDefaultPath)
     const archive = archiver('zip')
     await new Promise((resolve, reject) => {
@@ -328,14 +330,14 @@ class IsolatedPackage extends Package {
     this.project.addProduct(zipPath)
   }
 
-  getIsolatedPackages = async () => {
+  async getIsolatedPackages () {
     const files = await readdir(this.depsPath)
     return files
       .filter(fileName => fileName.startsWith('isolated'))
       .map(fileName => path.join(this.depsPath, fileName))
   }
 
-  cleanup = async () => {
+  async cleanup () {
     await ensureUnlink(this.manifestLockLocation)
     const isolated = await this.getIsolatedPackages()
     for (const pkgFile of isolated) {
@@ -349,35 +351,38 @@ class IsolatedPackage extends Package {
     this.backups = {}
   }
 
-  isolate = async ({ extract, neutral, zip } = {}) => {
+  async isolate ({ extract, neutral, zip } = {}) {
     const jobs = []
     if (!(await this.isPacked())) {
-      jobs.push({ name: `Configure ${this.name}`, fn: this.configurePackage })
-      jobs.push({ name: `Backup ${this.name}`, fn: this.backupConfig })
+      jobs.push({
+        name: `Configure ${this.name}`,
+        fn: () => this.configurePackage()
+      })
+      jobs.push({ name: `Backup ${this.name}`, fn: () => this.backupConfig() })
       jobs.push({
         name: `Isolate ${this.name} dependencies`,
-        fn: async () =>
-          await this.isolateDeps({
+        fn: () =>
+          this.isolateDeps({
             extract,
             neutral,
             zip
           })
       })
-      jobs.push({ name: `Package ${this.name}`, fn: this.pack })
+      jobs.push({ name: `Package ${this.name}`, fn: () => this.pack() })
     } else {
       this.project.addProduct(this.packageDefaultPath)
     }
     jobs.push({
       name: `Store ${this.name}`,
-      fn: async () => await this.store({ neutral })
+      fn: () => this.store({ neutral })
     })
     if (extract || zip) {
-      jobs.push({ name: `Extract ${this.name}`, fn: this.extract })
+      jobs.push({ name: `Extract ${this.name}`, fn: () => this.extract() })
     }
     if (zip) {
       jobs.push({
         name: `Zip ${this.name}`,
-        fn: async () => await this.zip({ neutral })
+        fn: () => this.zip({ neutral })
       })
     }
     await this.reporter.runJobs(jobs)
