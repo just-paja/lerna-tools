@@ -21,5 +21,8 @@
     "lerna-isolate": "file:packages/isolate",
     "lerna-jest": "file:packages/jest",
     "lerna-ministack": "file:packages/ministack"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
