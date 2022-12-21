@@ -1,4 +1,5 @@
 const path = require('path')
+const rimraf = require('rimraf')
 
 const { IsolatedProject } = require('..')
 
@@ -11,8 +12,14 @@ class DummyReporter {
 }
 
 describe('IsolateProject', () => {
-  const testRoot = path.join(__dirname, '__fixtures__', 'trivial')
+  const testRoot = path.resolve(__dirname, '..', '__fixtures__', 'trivial')
   const reporter = new DummyReporter()
+
+  afterEach(() => {
+    rimraf.sync(path.join(testRoot, 'dist'))
+    rimraf.sync(path.join(testRoot, '**', 'node_modules'))
+    rimraf.sync(path.join(testRoot, '**', '*.tgz'))
+  })
 
   describe('with trivial example', () => {
     const project = new IsolatedProject(testRoot, { reporter })

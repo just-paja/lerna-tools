@@ -30,6 +30,6 @@
     "url": "https://github.com/just-paja/lerna-isolate/issues"
   },
   "dependencies": {
-    "a": "^0.0.0"
+    "a": "file:isolated-a-0.0.0.tgz"
   }
 }
