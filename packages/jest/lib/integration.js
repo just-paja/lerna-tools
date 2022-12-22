@@ -1,9 +1,9 @@
-const { configureSuite } = require('./suite')
+const { configureSuite } = require('./suite.js')
 const {
   getSetupFiles,
   getSetupFilesAfterEnv,
   getTransforms,
-} = require('./plugins')
+} = require('./plugins.js')
 
 const testMatch = ['<rootDir>/**/__tests__/*.{cjs,js,jsx,mjs}']
 

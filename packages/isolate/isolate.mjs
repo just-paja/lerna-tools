@@ -3,7 +3,7 @@
 import path from 'path'
 import yargs from 'yargs'
 
-import { hideBin } from 'yargs/helpers/index.js'
+import { hideBin } from 'yargs/helpers'
 import { findRoot } from './paths.mjs'
 import { JobRunner } from './JobRunner.mjs'
 import { IsolatedProject } from './IsolatedProject.mjs'

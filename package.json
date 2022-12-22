@@ -13,7 +13,7 @@
     "@babel/core": "^7.19.1",
     "@babel/eslint-parser": "^7.19.1",
     "@babel/preset-env": "^7.20.2",
-    "@optimics/eslint-config": "^0.5.6",
+    "@optimics/eslint-config": "^0.5.8",
     "jest": "^29.3.1",
     "jest-runner-eslint": "^1.1.0",
     "jest-watch-select-projects": "^2.0.0",

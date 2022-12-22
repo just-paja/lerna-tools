@@ -1,8 +1,8 @@
 const path = require('path')
 
-const { configureLinter } = require('./linter')
-const { configureProject } = require('./project')
-const { configureIntegration } = require('./integration')
+const { configureLinter } = require('./linter.js')
+const { configureProject } = require('./project.js')
+const { configureIntegration } = require('./integration.js')
 const { getPackagesSync } = require('@lerna/project')
 
 function nonEmpty(item) {

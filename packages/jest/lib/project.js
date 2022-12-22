@@ -1,7 +1,7 @@
 const path = require('path')
 
 const { getPackagesSync } = require('@lerna/project')
-const { getWatchPlugins } = require('./plugins')
+const { getWatchPlugins } = require('./plugins.js')
 
 function configureProject(rootDir, projects, config = {}) {
   process.env.NODE_PATH = path.join(rootDir, '..', 'packages')

@@ -1,7 +1,7 @@
-const { configureLinter } = require('./linter')
-const { configureRoot, configureProject } = require('./project')
-const { configureSuite, filterSuiteName } = require('./suite')
-const { guessProjectConfig, guessRootConfig } = require('./guess')
+const { configureLinter } = require('./linter.js')
+const { configureRoot, configureProject } = require('./project.js')
+const { configureSuite, filterSuiteName } = require('./suite.js')
+const { guessProjectConfig, guessRootConfig } = require('./guess.js')
 
 module.exports = {
   configureLinter,

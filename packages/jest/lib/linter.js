@@ -1,5 +1,5 @@
-const { testPluginExistence } = require('./plugins')
-const { configureSuite } = require('./suite')
+const { testPluginExistence } = require('./plugins.js')
+const { configureSuite } = require('./suite.js')
 
 const testMatch = ['<rootDir>/**/*.{cjs,js,jsx,mjs}']
 

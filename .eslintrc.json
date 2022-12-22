@@ -5,5 +5,8 @@
   },
   "extends": [
     "@optimics/eslint-config"
-  ]
+  ],
+  "rules": {
+    "import/extensions": ["error", "ignorePackages"]
+  }
 }
