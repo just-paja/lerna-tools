@@ -262,7 +262,7 @@ export class IsolatedPackage extends Package {
   }
 
   async referenceStoredDependency(dep) {
-    const npmPackage = require(this.manifestLocation)
+    const npmPackage = JSON.parse(await readFile(this.manifestLocation))
     const versionRef = `file:isolated-${dep.name}-${dep.version}.tgz`
     npmPackage.dependencies[dep.name] = versionRef
     const JSON_PADDING = 2
