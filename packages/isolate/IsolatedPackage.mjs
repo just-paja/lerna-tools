@@ -343,6 +343,15 @@ export class IsolatedPackage extends Package {
       .map(fileName => path.join(this.depsPath, fileName))
   }
 
+  async restoreFile(targetPath, tmpFile) {
+    const current = String(await readFile(targetPath))
+    const backup = String(await readFile(tmpFile.path))
+    if (current !== backup) {
+      await writeFile(targetPath, backup)
+    }
+    await tmpFile.cleanup()
+  }
+
   async cleanup() {
     await ensureUnlink(this.manifestLockLocation)
     const isolated = await this.getIsolatedPackages()
@@ -350,8 +359,7 @@ export class IsolatedPackage extends Package {
       await ensureUnlink(pkgFile)
     }
     for (const [filePath, tmpFile] of Object.entries(this.backups)) {
-      await writeFile(filePath, await readFile(tmpFile.path))
-      await tmpFile.cleanup()
+      await this.restoreFile(filePath, tmpFile)
     }
     this.backups = {}
   }

@@ -74,17 +74,12 @@ async function cleanPackages() {
     }
   }
 
-  const dirs = await Promise.all(
-    [
-      formatPath('dist'),
-      formatPath('packages', 'banner-template-server', '.dist'),
-    ].map(exists)
-  )
-
+  const dirs = await Promise.all([formatPath('dist')].map(exists))
   const packages = (await fg('packages/*/*.(tgz|zip)')).filter(
     path => !path.match(/\/__/)
   )
-  const rmlist = [...dirs, ...packages].filter(Boolean)
+  const dist = (await fg('packages/*/dist')).filter(path => !path.match(/\/__/))
+  const rmlist = [...dirs, ...packages, ...dist].filter(Boolean)
 
   if (rmlist.length > 0) {
     process.stdout.write(`Cleaning ${baseDir}\n`)
