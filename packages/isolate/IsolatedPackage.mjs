@@ -4,16 +4,14 @@ import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
-import { createReadStream, createWriteStream, write } from 'fs'
+import { createReadStream, createWriteStream, readFileSync } from 'fs'
 import { execute } from './cli.mjs'
 import { Package } from '@lerna/package'
-import { promisify } from 'util'
 
 import {
   copyFile,
   mkdir,
   readdir,
-  readFile,
   stat,
   symlink,
   unlink,
@@ -24,8 +22,6 @@ import {
   PrivatePackageError,
   MisconfiguredFilesError,
 } from './errors.mjs'
-
-const writeFd = promisify(write)
 
 async function ensureSymlink(...args) {
   try {
@@ -161,7 +157,7 @@ export class IsolatedPackage extends Package {
       return null
     }
     const tmpFile = await tmp.file()
-    await writeFd(tmpFile.fd, await readFile(filePath))
+    await copyFile(filePath, tmpFile.path)
     this.backups[filePath] = tmpFile
     return tmpFile
   }
@@ -262,7 +258,7 @@ export class IsolatedPackage extends Package {
   }
 
   async referenceStoredDependency(dep) {
-    const npmPackage = JSON.parse(await readFile(this.manifestLocation))
+    const npmPackage = JSON.parse(readFileSync(this.manifestLocation))
     const versionRef = `file:isolated-${dep.name}-${dep.version}.tgz`
     npmPackage.dependencies[dep.name] = versionRef
     const JSON_PADDING = 2
@@ -344,11 +340,7 @@ export class IsolatedPackage extends Package {
   }
 
   async restoreFile(targetPath, tmpFile) {
-    const current = String(await readFile(targetPath))
-    const backup = String(await readFile(tmpFile.path))
-    if (current !== backup) {
-      await writeFile(targetPath, backup)
-    }
+    await copyFile(tmpFile.path, targetPath)
     await tmpFile.cleanup()
   }
 
