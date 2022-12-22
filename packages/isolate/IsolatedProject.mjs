@@ -47,10 +47,10 @@ export class IsolatedProject extends Project {
         big: true,
         fn: async () => {
           await this.isolatePackage(pkg, options)
-          await this.cleanup()
         },
       }))
     )
+    await this.cleanup()
   }
 
   async cleanup() {
