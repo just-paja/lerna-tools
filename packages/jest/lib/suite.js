@@ -2,11 +2,11 @@ const path = require('path')
 
 let filterFn = name => name
 
-function filterSuiteName (fn) {
+function filterSuiteName(fn) {
   filterFn = fn
 }
 
-function configureSuite (rootDir, ident, config = {}) {
+function configureSuite(rootDir, ident, config = {}) {
   const pkg = require(path.join(rootDir, 'package.json'))
   return {
     displayName: getSuiteIdent(pkg, ident),
@@ -19,17 +19,17 @@ function configureSuite (rootDir, ident, config = {}) {
       '/coverage/',
       '/node_modules/',
       '/static/',
-      '/dist/'
+      '/dist/',
     ],
-    ...config
+    ...config,
   }
 }
 
-function getSuiteIdent (pkg, specifier) {
+function getSuiteIdent(pkg, specifier) {
   return filterFn(`${pkg.name}-${specifier}`)
 }
 
 module.exports = {
   configureSuite,
-  filterSuiteName
+  filterSuiteName,
 }

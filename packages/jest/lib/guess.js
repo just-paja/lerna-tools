@@ -5,17 +5,17 @@ const { configureProject } = require('./project')
 const { configureIntegration } = require('./integration')
 const { getPackagesSync } = require('@lerna/project')
 
-function nonEmpty (item) {
+function nonEmpty(item) {
   return Boolean(item)
 }
 
-function guessProjectConfig (rootDir) {
+function guessProjectConfig(rootDir) {
   const integration = configureIntegration(rootDir)
   const linter = configureLinter(rootDir)
   return configureProject(rootDir, [integration, linter].filter(nonEmpty))
 }
 
-function guessRootConfig (directory) {
+function guessRootConfig(directory) {
   const packages = getPackagesSync(directory)
   const project = configureProject(
     directory,
@@ -30,5 +30,5 @@ function guessRootConfig (directory) {
 
 module.exports = {
   guessRootConfig,
-  guessProjectConfig
+  guessProjectConfig,
 }

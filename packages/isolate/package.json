@@ -27,12 +27,6 @@
     "delink",
     "isolate"
   ],
-  "standard": {
-    "env": [
-      "jest"
-    ],
-    "parser": "babel-eslint"
-  },
   "author": "Pavel Žák <pavel@zak.global>",
   "license": "MIT",
   "bugs": {

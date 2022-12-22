@@ -3,8 +3,8 @@ import { sep, normalize, join } from 'path'
 
 const configName = 'lerna.json'
 
-export async function findRoot (start) {
-  start = start || process.cwd()
+export function findRoot(startPath) {
+  let start = startPath || process.cwd()
   if (typeof start === 'string') {
     if (start[start.length - 1] !== sep) {
       start += sep
@@ -23,7 +23,6 @@ export async function findRoot (start) {
       return dir
     }
     return normalize(fullPath)
-  } else {
-    return findRoot(start)
   }
+  return findRoot(start)
 }

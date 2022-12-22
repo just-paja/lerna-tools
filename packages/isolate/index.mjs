@@ -4,5 +4,5 @@ export { JobRunner } from './JobRunner.mjs'
 export {
   MisconfiguredFilesError,
   PackageDoesNotExistError,
-  PrivatePackageError
+  PrivatePackageError,
 } from './errors.mjs'

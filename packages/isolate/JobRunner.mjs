@@ -1,11 +1,14 @@
 class DummySpinner {
-  start () {}
-  stop () {}
-  succeed () {}
+  start() {}
+  stop() {}
+  succeed() {}
 }
 
+const FINISHED = 100
+const TEXT_PADDING = 3
+
 export class JobRunner {
-  constructor () {
+  constructor() {
     this.jobsDone = 0
     this.jobsStarted = 0
     this.jobsTotal = 0
@@ -16,11 +19,11 @@ export class JobRunner {
         : () => new DummySpinner()
   }
 
-  addJobs (jobsCount) {
+  addJobs(jobsCount) {
     this.jobsTotal += jobsCount
   }
 
-  startJob (job) {
+  startJob(job) {
     this.jobsStarted += 1
     this.spinner.text = job.name
     if (job.big) {
@@ -28,7 +31,7 @@ export class JobRunner {
     }
   }
 
-  finishJob (job) {
+  finishJob(job) {
     this.jobsDone += 1
     if (job.big) {
       this.spinner.succeed(job.name)
@@ -38,16 +41,18 @@ export class JobRunner {
     }
   }
 
-  get prefixText () {
-    const value = String(Math.round((this.jobsDone / this.jobsTotal) * 100))
-    return `${' '.repeat(3 - value.length)}${value}%`
+  get prefixText() {
+    const value = String(
+      Math.round((this.jobsDone / this.jobsTotal) * FINISHED)
+    )
+    return `${' '.repeat(TEXT_PADDING - value.length)}${value}%`
   }
 
-  async initialize () {
+  async initialize() {
     this.spinner = await this.initializeSpinner()
   }
 
-  async runJobs (jobs) {
+  async runJobs(jobs) {
     await this.initialize()
     this.addJobs(jobs.length)
     for (const job of jobs) {

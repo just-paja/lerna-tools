@@ -9,7 +9,7 @@ import { readFile } from 'fs/promises'
 import { IsolatedProject } from '..'
 
 class DummyReporter {
-  async runJobs (jobs) {
+  async runJobs(jobs) {
     for (const job of jobs) {
       await job.fn.call()
     }
@@ -25,7 +25,7 @@ const extractPackage = async pkgPath => {
       .pipe(
         tar.x({
           C: d.path,
-          strip: 1
+          strip: 1,
         })
       )
       .on('finish', resolve)
@@ -61,9 +61,7 @@ describe('IsolateProject', () => {
         pkg = await extractPackage(path.join(testRoot, 'dist', 'b-0.0.0.tgz'))
       })
 
-      afterAll(async () => {
-        pkg.dir.cleanup()
-      })
+      afterAll(() => pkg.dir.cleanup())
 
       it('keeps local dependency in package b', async () => {
         const npmPackagePath = path.join(

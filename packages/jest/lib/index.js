@@ -10,5 +10,5 @@ module.exports = {
   configureSuite,
   filterSuiteName,
   guessProjectConfig,
-  guessRootConfig
+  guessRootConfig,
 }

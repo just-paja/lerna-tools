@@ -3,7 +3,7 @@ const path = require('path')
 const { getPackagesSync } = require('@lerna/project')
 const { getWatchPlugins } = require('./plugins')
 
-function configureProject (rootDir, projects, config = {}) {
+function configureProject(rootDir, projects, config = {}) {
   process.env.NODE_PATH = path.join(rootDir, '..', 'packages')
   return {
     collectCoverageFrom: [
@@ -16,21 +16,21 @@ function configureProject (rootDir, projects, config = {}) {
       '!**/dist/**',
       '!**/static/**',
       '!**/coverage/**',
-      '!jest.*'
+      '!jest.*',
     ],
     ...config,
     watchPlugins: getWatchPlugins(config.watchPlugins),
     rootDir,
-    projects
+    projects,
   }
 }
 
-function getPackageTestProjects (pkg) {
+function getPackageTestProjects(pkg) {
   const jestConfig = require(path.join(pkg.location, 'jest.config.js'))
   return jestConfig.projects
 }
 
-function configureRoot (directory, config) {
+function configureRoot(directory, config) {
   const packages = getPackagesSync(directory)
   const projects = packages.reduce(
     (aggr, pkg) => aggr.concat(getPackageTestProjects(pkg)),
@@ -41,5 +41,5 @@ function configureRoot (directory, config) {
 
 module.exports = {
   configureRoot,
-  configureProject
+  configureProject,
 }
