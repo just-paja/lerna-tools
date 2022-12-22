@@ -349,7 +349,6 @@ export class IsolatedPackage extends Package {
     for (const pkgFile of isolated) {
       await ensureUnlink(pkgFile)
     }
-    // await rmfr(this.depsPath) @TODO: Clean dependencies
     for (const [filePath, tmpFile] of Object.entries(this.backups)) {
       await writeFile(filePath, await readFile(tmpFile.path))
       await tmpFile.cleanup()

@@ -41,8 +41,9 @@
   },
   "dependencies": {
     "archiver": "^5.3.1",
+    "fast-glob": "^3.2.12",
     "ora": "^6.1.2",
-    "rmfr": "^2.0.0",
+    "rimraf": "^3.0.2",
     "tar": "^6.1.13",
     "tmp-promise": "^3.0.3",
     "yargs": "^17.6.2"

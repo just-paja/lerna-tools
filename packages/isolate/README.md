@@ -102,3 +102,11 @@ Sometimes, it is more useful to produce zip file instead of npm package. One exa
 ```shell
 lerna-isolate bundle -e
 ```
+
+### Clean build artifacts
+
+To clean all built artifacts, simply rin
+
+```shell
+lerna-isolate clean
+```
