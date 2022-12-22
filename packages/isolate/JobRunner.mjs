@@ -53,7 +53,6 @@ export class JobRunner {
   }
 
   async runJobs(jobs) {
-    await this.initialize()
     this.addJobs(jobs.length)
     for (const job of jobs) {
       if (!this.spinner.isSpinning) {

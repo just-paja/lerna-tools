@@ -16,6 +16,7 @@ function log(message) {
 async function isolatePackages(packages, options) {
   const root = findRoot()
   const jobRunner = new JobRunner()
+  await jobRunner.initialize()
   const project = new IsolatedProject(root, { reporter: jobRunner })
   const available = await project.getPackages()
   const toIsolate = await resolvePackages(available, packages)
