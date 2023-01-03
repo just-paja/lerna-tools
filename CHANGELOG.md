@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.1](https://github.com/just-paja/lerna-tools/compare/v0.7.0...v0.7.1) (2023-01-03)
+
+
+### Bug Fixes
+
+* link scoped package properly ([4107d53](https://github.com/just-paja/lerna-tools/commit/4107d5311c6a5d18974684eca586fa6e8c79b31d))
+
+
+
+
+
 # [0.7.0](https://github.com/just-paja/lerna-tools/compare/v0.6.3...v0.7.0) (2023-01-03)
 
 

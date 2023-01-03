@@ -1,6 +1,6 @@
 {
   "name": "lerna-isolate",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Extract your app from lerna repository with local package dependencies",
   "type": "module",
   "engines": {
