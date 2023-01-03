@@ -64,8 +64,12 @@ export class IsolatedPackage extends Package {
     this.storedDependencies = []
   }
 
+  get safeName() {
+    return this.name.replace('@', '').replace('/', '-')
+  }
+
   get packageName() {
-    return `${this.name}-${this.version}.tgz`
+    return `${this.safeName}-${this.version}.tgz`
   }
 
   get packagePath() {
@@ -73,11 +77,11 @@ export class IsolatedPackage extends Package {
   }
 
   get versionNeutralPackageName() {
-    return `${this.name}.tgz`
+    return `${this.safeName}.tgz`
   }
 
   get versionNeutralZipPackageName() {
-    return `${this.name}.zip`
+    return `${this.safeName}.zip`
   }
 
   get versionNeutralPackagePath() {
@@ -93,11 +97,11 @@ export class IsolatedPackage extends Package {
   }
 
   get extractedPath() {
-    return path.join(this.project.distPath, this.name)
+    return path.join(this.project.distPath, this.safeName)
   }
 
   get zipPackageName() {
-    return `${this.name}-${this.version}.zip`
+    return `${this.safeName}-${this.version}.zip`
   }
 
   get zipPath() {
