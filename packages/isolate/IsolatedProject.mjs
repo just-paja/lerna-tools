@@ -3,6 +3,7 @@ import path from 'path'
 import { IsolatedPackage } from './IsolatedPackage.mjs'
 import { Project } from '@lerna/project'
 import { mkdir } from 'fs/promises'
+import { rmrf } from './fs.mjs'
 
 export class IsolatedProject extends Project {
   constructor(root, { reporter } = {}) {
@@ -12,6 +13,7 @@ export class IsolatedProject extends Project {
     this.products = []
     this.reporter = reporter
     this.tainted = []
+    this.temp = []
   }
 
   async getPackages() {
@@ -36,6 +38,10 @@ export class IsolatedProject extends Project {
     }
   }
 
+  addTemp(tempPath) {
+    this.temp.push(tempPath)
+  }
+
   async createDistDir() {
     await mkdir(this.distPath, { recursive: true })
   }
@@ -57,6 +63,9 @@ export class IsolatedProject extends Project {
     for (const project of this.tainted) {
       await project.cleanup()
     }
+    for (const tmpPath of this.temp) {
+      await rmrf(tmpPath)
+    }
   }
 
   async isolatePackage(pkg, options) {
@@ -66,6 +75,7 @@ export class IsolatedProject extends Project {
     pkg.project = this
     this.tainted.push(pkg)
     await this.createDistDir()
+    await pkg.initialize()
     await pkg.isolate(options)
     this.isolated[pkg.name] = pkg
     return pkg

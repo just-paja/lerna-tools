@@ -31,5 +31,9 @@
   },
   "dependencies": {
     "a": "file:../a"
+  },
+  "isolation": {
+    "store:root": true,
+    "pack:npm": true
   }
 }

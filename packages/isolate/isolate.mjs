@@ -1,18 +1,14 @@
 #!/usr/bin/env node
 
 import fg from 'fast-glob'
-import rimraf from 'rimraf'
 import yargs from 'yargs'
 
-import { access } from 'fs/promises'
+import { exists, rmrf } from './fs.mjs'
 import { hideBin } from 'yargs/helpers'
 import { findRoot } from './paths.mjs'
 import { join, relative } from 'path'
 import { JobRunner } from './JobRunner.mjs'
 import { IsolatedProject } from './IsolatedProject.mjs'
-import { promisify } from 'util'
-
-const rmrf = promisify(rimraf)
 
 function log(message) {
   process.stdout.write(message)
@@ -28,11 +24,13 @@ async function isolatePackages(packages, options) {
   const toIsolate = await resolvePackages(available, packages)
   await project.isolatePackages(toIsolate, options)
 
-  log('Created:')
-  project.products
-    .map(archive => relative(process.cwd(), archive))
-    .sort((a, b) => a.localeCompare(b))
-    .forEach(archive => log(`  ${archive}`))
+  if (project.products.length > 0) {
+    log('Created:')
+    project.products
+      .map(archive => relative(process.cwd(), archive))
+      .sort((a, b) => a.localeCompare(b))
+      .forEach(archive => log(`  ${archive}`))
+  }
 }
 
 function findMatchingPackage(available, pkg) {
@@ -69,18 +67,6 @@ async function cleanPackages() {
     await rmrf(dir)
   }
 
-  const exists = async path => {
-    try {
-      await access(path)
-      return path
-    } catch (e) {
-      if (e.code === 'ENOENT') {
-        return null
-      }
-      throw e
-    }
-  }
-
   const dirs = await Promise.all([formatPath('dist')].map(exists))
   const packages = (await fg('packages/*/*.(tgz|zip)')).filter(
     path => !path.match(/\/__/)
@@ -99,6 +85,8 @@ async function cleanPackages() {
 }
 
 yargs(hideBin(process.argv))
+  .help('h')
+  .alias('h', 'help')
   .command(
     'bundle [packages..]',
     'bundle packages',
@@ -106,33 +94,10 @@ yargs(hideBin(process.argv))
       y.positional('packages', {
         describe: 'list of packages',
       })
-        .option('extract', {
-          alias: 'e',
-          type: 'boolean',
-          description: 'Leave generated output extracted',
-        })
-        .option('neutral', {
-          alias: 'n',
-          type: 'boolean',
-          description: 'Keep only version neutral outputs',
-        })
-        .option('zip', {
-          alias: 'z',
-          type: 'boolean',
-          description: 'Produce zip archive instead of npm package',
-        })
-        .alias('z', 'gcp')
     },
-    async argv =>
-      await isolatePackages(argv.packages, {
-        extract: Boolean(argv.extract),
-        neutral: Boolean(argv.neutral),
-        zip: Boolean(argv.zip),
-      })
+    async argv => await isolatePackages(argv.packages, {})
   )
   .command('list', 'list packages', printPackages)
   .command('clean', 'clean artifacts', cleanPackages)
-  .help('h')
-  .alias('h', 'help')
   .demandCommand()
   .parse()
