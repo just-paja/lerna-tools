@@ -7,6 +7,7 @@ import zlib from 'zlib'
 import { createReadStream, createWriteStream } from 'fs'
 import { execute } from './cli.mjs'
 import { Package } from '@lerna/package'
+import { ensureSymlink, ensureUnlink } from './fs.mjs'
 
 import {
   copyFile,
@@ -14,8 +15,6 @@ import {
   readdir,
   readFile,
   stat,
-  symlink,
-  unlink,
   writeFile,
 } from 'fs/promises'
 import {
@@ -23,26 +22,6 @@ import {
   PrivatePackageError,
   MisconfiguredFilesError,
 } from './errors.mjs'
-
-async function ensureSymlink(...args) {
-  try {
-    await symlink(...args)
-  } catch (e) {
-    if (e.code !== 'EEXIST') {
-      throw e
-    }
-  }
-}
-
-async function ensureUnlink(...args) {
-  try {
-    await unlink(...args)
-  } catch (e) {
-    if (e.code !== 'ENOENT') {
-      throw e
-    }
-  }
-}
 
 export class IsolatedPackage extends Package {
   static from(pkgInstance, config) {
