@@ -4,7 +4,7 @@ import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
-import { createReadStream, createWriteStream, readFileSync } from 'fs'
+import { createReadStream, createWriteStream } from 'fs'
 import { execute } from './cli.mjs'
 import { Package } from '@lerna/package'
 
@@ -12,6 +12,7 @@ import {
   copyFile,
   mkdir,
   readdir,
+  readFile,
   stat,
   symlink,
   unlink,
@@ -261,15 +262,27 @@ export class IsolatedPackage extends Package {
     this.storeDependencies(this.integratedDependencies)
   }
 
-  async referenceStoredDependency(dep) {
-    const npmPackage = JSON.parse(readFileSync(this.manifestLocation))
-    const versionRef = `file:isolated-${dep.packageName}`
-    npmPackage.dependencies[dep.name] = versionRef
+  async readManifest() {
+    if (!this.manifestData) {
+      this.manifestData = JSON.parse(await readFile(this.manifestLocation))
+    }
+    return this.manifestData
+  }
+
+  async writeManifest(data) {
     const JSON_PADDING = 2
+    this.manifestData = data
     await writeFile(
       this.manifestLocation,
-      JSON.stringify(npmPackage, null, JSON_PADDING)
+      JSON.stringify(data, null, JSON_PADDING)
     )
+  }
+
+  async referenceStoredDependency(dep) {
+    const npmPackage = await this.readManifest()
+    const versionRef = `file:isolated-${dep.packageName}`
+    npmPackage.dependencies[dep.name] = versionRef
+    await this.writeManifest(npmPackage)
   }
 
   async referenceStoredDependencies() {
@@ -360,9 +373,17 @@ export class IsolatedPackage extends Package {
     this.backups = {}
   }
 
+  async build() {
+    await execute(`lerna run build --scope ${this.name}`)
+  }
+
   async isolate({ extract, neutral, zip } = {}) {
     const jobs = []
     if (!(await this.isPacked())) {
+      const manifest = await this.readManifest()
+      if (manifest.scripts?.build) {
+        jobs.push({ name: `Build ${this.name}`, fn: () => this.build() })
+      }
       jobs.push({
         name: `Configure ${this.name}`,
         fn: () => this.configurePackage(),

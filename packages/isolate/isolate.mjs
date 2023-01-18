@@ -35,11 +35,18 @@ async function isolatePackages(packages, options) {
     .forEach(archive => log(`  ${archive}`))
 }
 
+function findMatchingPackage(available, pkg) {
+  const match = available.find(availablePkg => pkg === availablePkg.name)
+  if (match) {
+    return match
+  }
+
+  throw new Error(`Failed to find package "${pkg}"`)
+}
+
 function resolvePackages(available, packageList) {
   if (packageList.length) {
-    return packageList.map(arg =>
-      available.find(availablePkg => arg === availablePkg.name)
-    )
+    return packageList.map(arg => findMatchingPackage(available, arg))
   }
   return available
 }
