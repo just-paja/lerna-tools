@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/just-paja/lerna-isolate/compare/v0.7.1...v0.8.0) (2023-01-23)
+
+
+### Features
+
+* run build script when defined ([903acb5](https://github.com/just-paja/lerna-isolate/commit/903acb52fe2a8f2c3e92bc9bce46062e5dd66c3a))
+* selectively build artifact variants ([9e228c2](https://github.com/just-paja/lerna-isolate/commit/9e228c2f7d05ed6833f7a1c854d61a626956ecbb))
+
+
+### BREAKING CHANGES
+
+* package isolation now needs to be configured in
+package.json
+
+
+
+
+
 ## [0.7.1](https://github.com/just-paja/lerna-isolate/compare/v0.7.0...v0.7.1) (2023-01-03)
 
 
