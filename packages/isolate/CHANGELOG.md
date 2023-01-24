@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1](https://github.com/just-paja/lerna-isolate/compare/v0.8.0...v0.8.1) (2023-01-24)
+
+
+### Bug Fixes
+
+* read package manifest less ([0c470af](https://github.com/just-paja/lerna-isolate/commit/0c470af6f92ab0728a031d6a1cf308bc6d0c2ac3))
+
+
+
+
+
 # [0.8.0](https://github.com/just-paja/lerna-isolate/compare/v0.7.1...v0.8.0) (2023-01-23)
 
 
