@@ -4,21 +4,13 @@ import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
-import { createReadStream, createWriteStream } from 'fs'
+import { copyFile, mkdir, readdir, readFile, stat } from 'fs/promises'
+import { createReadStream, createWriteStream, writeFileSync } from 'fs'
 import { ensureUnlink } from './fs.mjs'
 import { execute } from './cli.mjs'
 import { Package } from '@lerna/package'
 import { packageProject } from './npm.mjs'
 import { resolveFlags } from './flags.mjs'
-
-import {
-  copyFile,
-  mkdir,
-  readdir,
-  readFile,
-  stat,
-  writeFile,
-} from 'fs/promises'
 import {
   PackageDoesNotExistError,
   PrivatePackageError,
@@ -37,6 +29,7 @@ export class IsolatedPackage extends Package {
 
   constructor(pkg, location, rootPath, { project, reporter } = {}) {
     super(pkg, location, rootPath)
+    this.manifest = pkg
     this.backups = {}
     this.integratedDependencies = []
     this.isolatedPackagePrefix = 'isolated-'
@@ -235,10 +228,10 @@ export class IsolatedPackage extends Package {
     return this.manifest
   }
 
-  async writeManifest(data) {
+  writeManifest(data) {
     const JSON_PADDING = 2
     this.manifest = data
-    await writeFile(
+    writeFileSync(
       this.manifestLocation,
       JSON.stringify(data, null, JSON_PADDING)
     )
