@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/just-paja/lerna-jest/compare/v0.8.1...v0.9.0) (2023-02-01)
+
+
+### Features
+
+* read afterEnv from base workspace ([380e1da](https://github.com/just-paja/lerna-jest/commit/380e1dadbdfbd523dc63871c8c7fdf429effab02))
+
+
+
+
+
 # [0.8.0](https://github.com/just-paja/lerna-jest/compare/v0.7.1...v0.8.0) (2023-01-23)
 
 **Note:** Version bump only for package lerna-jest
