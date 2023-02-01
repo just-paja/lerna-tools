@@ -45,6 +45,7 @@ function getSetupFiles(directory, extra) {
     ...['jest-date-mock'].filter(testPluginExistence),
     ...[
       path.resolve(directory, '..', '..', 'jest.setup.js'),
+      path.resolve(directory, '..', 'jest.setup.js'),
       path.join(directory, 'jest.setup.js'),
     ].filter(fs.existsSync),
     ...(extra || []),
@@ -56,6 +57,7 @@ function getSetupFilesAfterEnv(directory, extra) {
     ...['jest-enzyme', 'jest-extended'].filter(testPluginExistence),
     ...[
       path.resolve(directory, '..', '..', 'jest.afterEnv.js'),
+      path.resolve(directory, '..', 'jest.afterEnv.js'),
       path.join(directory, 'jest.afterEnv.js'),
     ].filter(fs.existsSync),
     ...(extra || []),
