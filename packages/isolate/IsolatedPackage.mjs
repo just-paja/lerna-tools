@@ -95,6 +95,7 @@ export class IsolatedPackage extends Package {
       const manifest = await this.readManifest()
       this.cfg = resolveFlags(manifest)
     }
+    return this
   }
 
   async configurePackage() {

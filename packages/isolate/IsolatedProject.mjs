@@ -9,6 +9,7 @@ export class IsolatedProject extends Project {
   constructor(root, { reporter } = {}) {
     super(root)
     this.isolated = {}
+    this.mappedPackages = null
     this.onProgress = null
     this.products = []
     this.reporter = reporter
@@ -17,10 +18,16 @@ export class IsolatedProject extends Project {
   }
 
   async getPackages() {
-    const bare = await super.getPackages()
-    return bare.map(pkg =>
-      IsolatedPackage.from(pkg, { project: this, reporter: this.reporter })
-    )
+    if (!this.mappedPackages) {
+      const bare = await super.getPackages()
+      const mapped = bare.map(pkg =>
+        IsolatedPackage.from(pkg, { project: this, reporter: this.reporter })
+      )
+      this.mappedPackages = await Promise.all(
+        mapped.map(pkg => pkg.initialize())
+      )
+    }
+    return this.mappedPackages
   }
 
   async getPackageNames() {
