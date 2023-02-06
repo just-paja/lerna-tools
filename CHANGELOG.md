@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/just-paja/lerna-tools/compare/v0.9.0...v0.9.1) (2023-02-06)
+
+
+### Bug Fixes
+
+* resolve flags in constructor ([034cf86](https://github.com/just-paja/lerna-tools/commit/034cf86572cff4faa3726b0d561e7e362aab402f))
+* reuse initialized packages ([4d04d18](https://github.com/just-paja/lerna-tools/commit/4d04d18f8667b5fb43f6471b2f9fb0fe59145608))
+
+
+
+
+
 # [0.9.0](https://github.com/just-paja/lerna-jest/compare/v0.8.1...v0.9.0) (2023-02-01)
 
 
