@@ -30,6 +30,7 @@ export class IsolatedPackage extends Package {
   constructor(pkg, location, rootPath, { project, reporter } = {}) {
     super(pkg, location, rootPath)
     this.manifest = pkg
+    this.cfg = resolveFlags(pkg)
     this.backups = {}
     this.integratedDependencies = []
     this.isolatedPackagePrefix = 'isolated-'
