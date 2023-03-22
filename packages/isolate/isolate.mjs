@@ -9,11 +9,9 @@ import { findRoot } from './paths.mjs'
 import { join, relative } from 'path'
 import { JobRunner } from './JobRunner.mjs'
 import { IsolatedProject } from './IsolatedProject.mjs'
-
-function log(message) {
-  process.stdout.write(message)
-  process.stdout.write('\n')
-}
+import { runScopeCommand } from './runner.mjs'
+import { printPackages, printScopes } from './scopes.mjs'
+import { log } from './cli.mjs'
 
 async function isolatePackages(packages, options) {
   const root = findRoot()
@@ -47,15 +45,6 @@ function resolvePackages(available, packageList) {
     return packageList.map(arg => findMatchingPackage(available, arg))
   }
   return available
-}
-
-async function printPackages() {
-  const root = findRoot()
-  const project = new IsolatedProject(root)
-  const packages = await project.getPackageNames()
-  for (const pkgName of packages) {
-    log(pkgName)
-  }
 }
 
 async function cleanPackages() {
@@ -97,7 +86,58 @@ yargs(hideBin(process.argv))
     },
     async argv => await isolatePackages(argv.packages, {})
   )
-  .command('list', 'list packages', printPackages)
+  .command(
+    'run [scope] [pkg]',
+    'run scripts on project scope',
+    y => {
+      y.positional('scope', {
+        describe: 'project scope, like "@foo" or "foo"',
+      })
+        .positional('pkg', {
+          describe: 'package name',
+        })
+        .option('all', {
+          alias: 'a',
+          boolean: true,
+          default: false,
+        })
+        .option('script', {
+          alias: 's',
+          default: 'dev',
+          describe: 'run this npm script',
+          string: true,
+        })
+    },
+    runScopeCommand
+  )
+  .command(
+    'packages',
+    'work with packages',
+    y => {
+      y.option('scope', {
+        alias: 's',
+        describe: 'filter packages from this scope',
+        string: true,
+      }).option('with-script', {
+        alias: 'w',
+        describe: 'filter scopes supporting this npm script',
+        string: true,
+      })
+    },
+    printPackages
+  )
+  .command(
+    'scopes',
+    'work with project scopes',
+    y => {
+      y.option('with-script', {
+        alias: 'w',
+        describe: 'filter scopes supporting this npm script',
+        string: true,
+      })
+    },
+    printScopes
+  )
   .command('clean', 'clean artifacts', cleanPackages)
   .demandCommand()
   .parse()

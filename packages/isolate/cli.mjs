@@ -1,5 +1,15 @@
 import childProcess from 'child_process'
 
+export const log = (message, { padding = 0, newline = true } = {}) => {
+  if (padding) {
+    process.stdout.write(Array(padding).fill(' ').join(''))
+  }
+  process.stdout.write(message)
+  if (newline) {
+    process.stdout.write('\n')
+  }
+}
+
 export async function execute(cmd, options) {
   return await new Promise((resolve, reject) => {
     childProcess.exec(cmd, options, (err, stdout, stderr) => {
