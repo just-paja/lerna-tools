@@ -61,6 +61,9 @@ export class JobRunner {
       this.startJob(job)
       await job.fn.call()
       this.finishJob(job)
+      if (job.after) {
+        await job.after.call()
+      }
     }
   }
 }

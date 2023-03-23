@@ -20,15 +20,17 @@ async function isolatePackages(argv) {
   const project = new IsolatedProject(root, { reporter: jobRunner })
   const available = await project.filterPackages(argv)
   const toIsolate = await resolvePackages(available, argv.packages)
+  let products = []
+  project.on('productAdded', ({ productPath }) => {
+    products.push(productPath)
+  })
+  project.on('packageIsolated', () => {
+    products.map(productPath =>
+      log(relative(process.cwd(), productPath), { clear: true, padding: 2 })
+    )
+    products = []
+  })
   await project.isolatePackages(toIsolate)
-
-  if (project.products.length > 0) {
-    log('Created:')
-    project.products
-      .map(archive => relative(process.cwd(), archive))
-      .sort((a, b) => a.localeCompare(b))
-      .forEach(archive => log(`  ${archive}`))
-  }
 }
 
 function findMatchingPackage(available, pkg) {

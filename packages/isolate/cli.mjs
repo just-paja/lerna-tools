@@ -1,6 +1,12 @@
 import childProcess from 'child_process'
 
-export const log = (message, { padding = 0, newline = true } = {}) => {
+export const log = (
+  message,
+  { clear = false, padding = 0, newline = true } = {}
+) => {
+  if (clear) {
+    process.stdout.write('\r')
+  }
   if (padding) {
     process.stdout.write(Array(padding).fill(' ').join(''))
   }

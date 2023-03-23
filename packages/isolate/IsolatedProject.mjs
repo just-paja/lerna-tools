@@ -9,6 +9,7 @@ import { extractPackageName, padScope } from './names.mjs'
 export class IsolatedProject extends Project {
   constructor(root, { reporter } = {}) {
     super(root)
+    this.handlers = {}
     this.isolated = {}
     this.mappedPackages = null
     this.onProgress = null
@@ -58,11 +59,28 @@ export class IsolatedProject extends Project {
   addProduct(productPath) {
     if (!this.products.includes(productPath)) {
       this.products.push(productPath)
+      this.announce('productAdded', { productPath })
     }
   }
 
   addTemp(tempPath) {
     this.temp.push(tempPath)
+  }
+
+  announce(event, props) {
+    const handlers = this.handlers[event]
+    if (handlers) {
+      for (const handler of handlers) {
+        handler(props)
+      }
+    }
+  }
+
+  on(event, handler) {
+    if (!this.handlers[event]) {
+      this.handlers[event] = []
+    }
+    this.handlers[event].push(handler)
   }
 
   async createDistDir() {
@@ -76,6 +94,9 @@ export class IsolatedProject extends Project {
         big: true,
         fn: async () => {
           await this.isolatePackage(pkg, options)
+        },
+        after: () => {
+          this.announce('packageIsolated', pkg)
         },
       }))
     )
