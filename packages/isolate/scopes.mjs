@@ -1,33 +1,16 @@
 import { findRoot } from './paths.mjs'
 import { IsolatedProject } from './IsolatedProject.mjs'
 import { log } from './cli.mjs'
+import {
+  extractPackageName,
+  extractProjectScope,
+  filterUnique,
+} from './names.mjs'
 
-const extractProjectScope = p => p.name.split('/')[0]
-const extractPackageName = p => p.name.split('/')[1]
-const filterUnique = (item, index, src) => src.indexOf(item) === index
-
-export const padScope = scope => {
-  if (!scope) {
-    return null
-  }
-  return scope.startsWith('@') ? scope : `@${scope}`
-}
-
-export const getPackages = async ({ exact, scope, withScript } = {}) => {
+export const getPackages = async kwargs => {
   const root = await findRoot()
   const project = new IsolatedProject(root)
-  let packages = await project.getPackages()
-  if (scope) {
-    const projectScope = padScope(scope)
-    packages = packages.filter(p => p.name.startsWith(`${projectScope}/`))
-  }
-  if (withScript) {
-    packages = packages.filter(p => p.scripts[withScript])
-  }
-  if (exact) {
-    packages = packages.filter(p => extractPackageName(p).startsWith(exact))
-  }
-  return packages
+  return await project.filterPackages(kwargs)
 }
 
 export const getPackageNames = async ({ noScope = false, ...args } = {}) => {

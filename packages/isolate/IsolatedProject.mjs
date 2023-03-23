@@ -4,6 +4,7 @@ import { IsolatedPackage } from './IsolatedPackage.mjs'
 import { Project } from '@lerna/project'
 import { mkdir } from 'fs/promises'
 import { rmrf } from './fs.mjs'
+import { extractPackageName, padScope } from './names.mjs'
 
 export class IsolatedProject extends Project {
   constructor(root, { reporter } = {}) {
@@ -30,6 +31,21 @@ export class IsolatedProject extends Project {
     return this.mappedPackages
   }
 
+  async filterPackages({ scope, withScript, exact } = {}) {
+    let packages = await this.getPackages()
+    if (scope) {
+      const projectScope = padScope(scope)
+      packages = packages.filter(p => p.name.startsWith(`${projectScope}/`))
+    }
+    if (withScript) {
+      packages = packages.filter(p => p.scripts[withScript])
+    }
+    if (exact) {
+      packages = packages.filter(p => extractPackageName(p).startsWith(exact))
+    }
+    return packages
+  }
+
   async getPackageNames() {
     const packages = await this.getPackages()
     return packages.map(pkg => pkg.name)
@@ -53,7 +69,7 @@ export class IsolatedProject extends Project {
     await mkdir(this.distPath, { recursive: true })
   }
 
-  async isolatePackages(pkgs, options) {
+  async isolatePackages(pkgs, options = {}) {
     await this.reporter.runJobs(
       pkgs.map(pkg => ({
         name: `Isolate ${pkg.name}`,

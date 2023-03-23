@@ -13,14 +13,14 @@ import { runScopeCommand } from './runner.mjs'
 import { printPackages, printScopes } from './scopes.mjs'
 import { log } from './cli.mjs'
 
-async function isolatePackages(packages, options) {
+async function isolatePackages(argv) {
   const root = findRoot()
   const jobRunner = new JobRunner()
   await jobRunner.initialize()
   const project = new IsolatedProject(root, { reporter: jobRunner })
-  const available = await project.getPackages()
-  const toIsolate = await resolvePackages(available, packages)
-  await project.isolatePackages(toIsolate, options)
+  const available = await project.filterPackages(argv)
+  const toIsolate = await resolvePackages(available, argv.packages)
+  await project.isolatePackages(toIsolate)
 
   if (project.products.length > 0) {
     log('Created:')
@@ -82,9 +82,13 @@ yargs(hideBin(process.argv))
     y => {
       y.positional('packages', {
         describe: 'list of packages',
+      }).option('scope', {
+        alias: 's',
+        describe: 'project scope, like "@foo" or "foo"',
+        string: true,
       })
     },
-    async argv => await isolatePackages(argv.packages, {})
+    isolatePackages
   )
   .command(
     'run [scope] [pkg]',
