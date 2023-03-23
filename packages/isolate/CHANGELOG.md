@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/just-paja/lerna-isolate/compare/v0.9.1...v0.10.0) (2023-03-23)
+
+
+### Bug Fixes
+
+* fortify the cleanup procedure ([4984c58](https://github.com/just-paja/lerna-isolate/commit/4984c58))
+* upgrade dependencies ([17b3442](https://github.com/just-paja/lerna-isolate/commit/17b3442))
+
+
+### Features
+
+* isolate packages based on project scope ([ab95537](https://github.com/just-paja/lerna-isolate/commit/ab95537))
+* print products as their finished ([27e25bd](https://github.com/just-paja/lerna-isolate/commit/27e25bd))
+* run lerna scripts based on scope ([07e6737](https://github.com/just-paja/lerna-isolate/commit/07e6737))
+
+
+
+
+
 ## [0.9.1](https://github.com/just-paja/lerna-isolate/compare/v0.9.0...v0.9.1) (2023-02-06)
 
 
