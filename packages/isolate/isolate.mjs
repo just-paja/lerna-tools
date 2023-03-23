@@ -30,7 +30,17 @@ async function isolatePackages(argv) {
     )
     products = []
   })
+
+  const terminate = () => () => {
+    project.cleanup()
+  }
+
+  process.on('exit', terminate('SIGINT'))
+  process.on('SIGTERM', terminate('SIGTERM'))
+  process.on('SIGINT', terminate('SIGINT'))
+
   await project.isolatePackages(toIsolate)
+  project.cleanup()
 }
 
 function findMatchingPackage(available, pkg) {

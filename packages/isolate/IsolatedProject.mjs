@@ -3,7 +3,7 @@ import path from 'path'
 import { IsolatedPackage } from './IsolatedPackage.mjs'
 import { Project } from '@lerna/project'
 import { mkdir } from 'fs/promises'
-import { rmrf } from './fs.mjs'
+import { rimrafSync } from 'rimraf'
 import { extractPackageName, padScope } from './names.mjs'
 
 export class IsolatedProject extends Project {
@@ -100,15 +100,14 @@ export class IsolatedProject extends Project {
         },
       }))
     )
-    await this.cleanup()
   }
 
-  async cleanup() {
+  cleanup() {
     for (const project of this.tainted) {
-      await project.cleanup()
+      project.cleanup()
     }
     for (const tmpPath of this.temp) {
-      await rmrf(tmpPath)
+      rimrafSync(tmpPath)
     }
   }
 

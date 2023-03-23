@@ -4,8 +4,14 @@ import tar from 'tar'
 import tmp from 'tmp-promise'
 import zlib from 'zlib'
 
-import { copyFile, mkdir, readdir, readFile, stat } from 'fs/promises'
-import { createReadStream, createWriteStream, writeFileSync } from 'fs'
+import {
+  readdirSync,
+  copyFileSync,
+  createReadStream,
+  createWriteStream,
+  writeFileSync,
+} from 'fs'
+import { copyFile, mkdir, readFile, stat } from 'fs/promises'
 import { ensureUnlink } from './fs.mjs'
 import { execute } from './cli.mjs'
 import { Package } from '@lerna/package'
@@ -122,7 +128,7 @@ export class IsolatedPackage extends Package {
     }
     const tmpFile = await tmp.file()
     this.project.addTemp(tmpFile.path)
-    await copyFile(filePath, tmpFile.path)
+    copyFileSync(filePath, tmpFile.path)
     this.backups[filePath] = tmpFile
     return tmpFile
   }
@@ -153,13 +159,14 @@ export class IsolatedPackage extends Package {
     }
     try {
       await execute(
-        `npm install ${dep.name}@${dep.version} --only=production`,
+        'npm',
+        ['install', `${dep.name}@${dep.version}`, '--omit=dev', '--omit=peer'],
         {
           cwd: this.location,
         }
       )
     } catch (e) {
-      if (e.code === 1) {
+      if (e?.code === 1) {
         throw PackageDoesNotExistError.fromError(e)
       }
       throw e
@@ -327,31 +334,31 @@ export class IsolatedPackage extends Package {
     })
   }
 
-  async getIsolatedPackages() {
-    const files = await readdir(this.depsPath)
+  getIsolatedPackages() {
+    const files = readdirSync(this.depsPath)
     return files
       .filter(fileName => fileName.startsWith('isolated'))
       .map(fileName => path.join(this.depsPath, fileName))
   }
 
-  async restoreFile(targetPath, tmpFile) {
-    await copyFile(tmpFile.path, targetPath)
+  restoreFile(targetPath, tmpFile) {
+    copyFileSync(tmpFile.path, targetPath)
   }
 
-  async cleanup() {
-    await ensureUnlink(this.manifestLockLocation)
-    const isolated = await this.getIsolatedPackages()
+  cleanup() {
+    ensureUnlink(this.manifestLockLocation)
+    const isolated = this.getIsolatedPackages()
     for (const pkgFile of isolated) {
-      await ensureUnlink(pkgFile)
+      ensureUnlink(pkgFile)
     }
     for (const [filePath, tmpFile] of Object.entries(this.backups)) {
-      await this.restoreFile(filePath, tmpFile)
+      this.restoreFile(filePath, tmpFile)
     }
     this.backups = {}
   }
 
   async build() {
-    await execute(`lerna run build --scope ${this.name}`)
+    await execute('lerna', ['run', 'build', '--scope', this.name])
   }
 
   nameJob(str) {

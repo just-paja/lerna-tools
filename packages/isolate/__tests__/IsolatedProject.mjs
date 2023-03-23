@@ -1,11 +1,11 @@
 import path from 'path'
-import rimraf from 'rimraf'
 import tar from 'tar'
 import zlib from 'zlib'
 
 import { createReadStream } from 'fs'
 import { dir } from 'tmp-promise'
 import { readFile } from 'fs/promises'
+import { rimraf } from 'rimraf'
 import { IsolatedProject } from '..'
 
 class DummyReporter {
@@ -58,6 +58,7 @@ describe('IsolateProject', () => {
       beforeAll(async () => {
         const packages = await project.getPackages()
         await project.isolatePackages(packages)
+        project.cleanup()
         pkg = await extractPackage(path.join(testRoot, 'dist', 'b-0.0.0.tgz'))
       })
 

@@ -1,6 +1,6 @@
-import rimraf from 'rimraf'
-
-import { access, symlink, unlink } from 'fs/promises'
+import { access, symlink } from 'fs/promises'
+import { rimraf } from 'rimraf'
+import { unlinkSync } from 'fs'
 
 export const rmrf = rimraf
 
@@ -14,9 +14,9 @@ export async function ensureSymlink(...args) {
   }
 }
 
-export async function ensureUnlink(...args) {
+export function ensureUnlink(...args) {
   try {
-    await unlink(...args)
+    unlinkSync(...args)
   } catch (e) {
     if (e.code !== 'ENOENT') {
       throw e

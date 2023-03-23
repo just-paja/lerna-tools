@@ -16,16 +16,47 @@ export const log = (
   }
 }
 
-export async function execute(cmd, options) {
+const coverProcess = cfg => {
+  const terminate = signal => () => {
+    cfg.inst.kill(signal)
+  }
+  const exit = terminate('SIGINT')
+  const term = terminate('SIGTERM')
+  const int = terminate('SIGINT')
+  process.on('exit', exit)
+  process.on('SIGTERM', term)
+  process.on('SIGINT', int)
+  return () => {
+    process.removeListener('exit', exit)
+    process.removeListener('SIGTERM', term)
+    process.removeListener('SIGINT', int)
+  }
+}
+
+export async function execute(cmd, args, options) {
   return await new Promise((resolve, reject) => {
-    childProcess.exec(cmd, options, (err, stdout, stderr) => {
-      if (err) {
-        err.stderr = stdout
-        err.stderr = stderr
-        reject(err)
+    const cfg = {}
+    const clear = coverProcess(cfg)
+    let stderr = ''
+
+    cfg.inst = childProcess.spawn(cmd, args, options)
+    cfg.inst.stderr.on('data', data => (stderr += data))
+    cfg.inst.on('close', code => {
+      clear()
+      if (code === 0) {
+        resolve()
       } else {
-        resolve({ stderr, stdout })
+        const err = new Error(
+          `The npm command "${cmd} ${args.join(' ')}" failed`
+        )
+        err.code = code
+        err.stack = err.stack += stderr
+        reject(err)
       }
+    })
+    cfg.inst.on('error', e => {
+      e.stack = e.stack += stderr
+      reject(e)
     })
   })
 }
