@@ -1,9 +1,8 @@
 import rimraf from 'rimraf'
 
 import { access, symlink, unlink } from 'fs/promises'
-import { promisify } from 'util'
 
-export const rmrf = promisify(rimraf)
+export const rmrf = rimraf
 
 export async function ensureSymlink(...args) {
   try {

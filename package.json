@@ -9,21 +9,17 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@babel/cli": "^7.19.0",
-    "@babel/core": "^7.19.1",
-    "@babel/eslint-parser": "^7.19.1",
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.3",
+    "@babel/eslint-parser": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "@optimics/eslint-config": "^0.5.8",
-    "jest": "^29.3.1",
-    "jest-runner-eslint": "^1.1.0",
+    "jest": "^29.5.0",
+    "jest-runner-eslint": "^2.0.0",
     "jest-watch-select-projects": "^2.0.0",
-    "jest-watch-typeahead": "^2.2.1",
-    "lerna": "^6.1.0",
-    "rimraf": "^3.0.2"
-  },
-  "dependencies": {
-    "lerna-isolate": "file:packages/isolate",
-    "lerna-jest": "file:packages/jest"
+    "jest-watch-typeahead": "^2.2.2",
+    "lerna": "^6.5.1",
+    "rimraf": "^4.4.1"
   },
   "workspaces": [
     "packages/*"
