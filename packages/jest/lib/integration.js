@@ -5,7 +5,10 @@ const {
   getTransforms,
 } = require('./plugins.js')
 
-const testMatch = ['<rootDir>/**/__tests__/*.{cjs,js,jsx,mjs}']
+const testMatch = [
+  '<rootDir>/**/__tests__/*.{cjs,js,jsx,mjs}',
+  '<rootDir>/**/__tests__/*.{ts,tsx,cts,mts,ctsx,mtsx}',
+]
 
 function configureIntegration(rootDir, config = {}) {
   return configureSuite(rootDir, 'integration', {
