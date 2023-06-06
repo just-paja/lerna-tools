@@ -15,8 +15,8 @@ function testPluginExistence(pluginName) {
 
 function getTransforms(extra) {
   return Object.entries({
-    '^.+\\.(js|jsx|mjs)$': ['babel-jest', { rootMode: 'upward' }],
-    '.+\\.(css|styl|less|sass|scss)$': 'jest-css-modules-transform',
+    '\\.([cm]?[jt]sx?)$': ['babel-jest', { rootMode: 'upward' }],
+    '\\.(css|styl|less|sass|scss)$': 'jest-css-modules-transform',
   })
     .filter(([, transformModule]) => testPluginExistence(transformModule))
     .reduce(
