@@ -7,9 +7,8 @@ function configureProject(rootDir, projects, config = {}) {
   process.env.NODE_PATH = path.join(rootDir, '..', 'packages')
   return {
     collectCoverageFrom: [
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.mjs',
+      '**/*.{cjs,js,jsx,mjs}',
+      '**/*.{ts,tsx,cts,mts,ctsx,mtsx}',
       '!**/__fixtures__/**',
       '!**/__samples__/**',
       '!**/__jest__/**',
