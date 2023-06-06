@@ -34,6 +34,7 @@ function configureSuite(rootDir, ident, config = {}) {
       '/coverage/',
       '/node_modules/',
       '/static/',
+      '/build/',
       '/dist/',
     ],
     ...config,
