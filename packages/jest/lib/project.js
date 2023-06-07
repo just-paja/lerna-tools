@@ -16,6 +16,7 @@ function configureProject(rootDir, projects, config = {}) {
       '!**/dist/**',
       '!**/static/**',
       '!**/coverage/**',
+      '!**/scripts/**',
       '!jest.*',
     ],
     coverageProvider: 'v8',
