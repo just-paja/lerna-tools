@@ -18,6 +18,7 @@ function configureProject(rootDir, projects, config = {}) {
       '!**/coverage/**',
       '!jest.*',
     ],
+    coverageProvider: 'v8',
     ...config,
     watchPlugins: getWatchPlugins(config.watchPlugins),
     rootDir,
