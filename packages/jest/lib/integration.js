@@ -12,7 +12,8 @@ const testMatch = [
 ]
 
 function configureIntegration(rootDir, config = {}) {
-  return configureSuite(rootDir, 'integration', {
+  const pkg = require(join(rootDir, 'package.json'))
+  const cfg = configureSuite(rootDir, 'integration', {
     ...config,
     testMatch,
     moduleNameMapper: {
@@ -27,6 +28,10 @@ function configureIntegration(rootDir, config = {}) {
       config.setupFilesAfterEnv
     ),
   })
+  if (pkg?.jest?.testEnvironment) {
+    cfg.testEnvironment = pkg.jest.testEnvironment
+  }
+  return cfg
 }
 
 module.exports = {
