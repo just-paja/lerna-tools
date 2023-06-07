@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/just-paja/lerna-jest/compare/v0.10.0...v0.11.0) (2023-06-07)
+
+
+### Features
+
+* accept typescript tests ([470f9ce](https://github.com/just-paja/lerna-jest/commit/470f9ce53fd8e28c965020a35d36951536bae83a))
+* collect coverage from typescript files ([da1cee5](https://github.com/just-paja/lerna-jest/commit/da1cee50464cab20a9a49b5c0b8c65e1d7c1bf75))
+* configure css modules env vars ([3e20fb8](https://github.com/just-paja/lerna-jest/commit/3e20fb8cfa74a4cb2ff295aeb166121f24b93567))
+* configure svg-transformer ([72d65e7](https://github.com/just-paja/lerna-jest/commit/72d65e70ebd19306df6e73b2fb7b6974c5cbd73e))
+* detect test environment from package.json ([cc18162](https://github.com/just-paja/lerna-jest/commit/cc181622d1382c5c0fd933ebec71e0a47ce148bc))
+* ignore build directory ([b29850e](https://github.com/just-paja/lerna-jest/commit/b29850edd5683af8e751176bfe10f24bad09d445))
+* ignore declaration files by default ([34b4c94](https://github.com/just-paja/lerna-jest/commit/34b4c945e6e7dff36f3c5e95f12067a931837e09))
+* ignore scripts directory ([39f41e6](https://github.com/just-paja/lerna-jest/commit/39f41e6bc8ec643b3a7bd73d3cc23702e0a3b598))
+* map common binary files with file mock ([62446e6](https://github.com/just-paja/lerna-jest/commit/62446e68a974c0757b3201daedd082f3f3b8ceb0))
+* transform typescript modules ([8a42af3](https://github.com/just-paja/lerna-jest/commit/8a42af352065be6f24e4c9b16a2899b8aab03934))
+* transform typescript tests ([35625be](https://github.com/just-paja/lerna-jest/commit/35625bef21cfce2829bf91423a66aba7cf5ac670))
+* use v8 as default coverage provider ([ee8807c](https://github.com/just-paja/lerna-jest/commit/ee8807c1945b5cca69e9c18198a2e528a09c0701))
+
+
+
+
+
 # [0.10.0](https://github.com/just-paja/lerna-jest/compare/v0.9.1...v0.10.0) (2023-03-23)
 
 **Note:** Version bump only for package lerna-jest

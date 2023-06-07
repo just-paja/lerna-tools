@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/just-paja/lerna-isolate/compare/v0.10.0...v0.11.0) (2023-06-07)
+
+
+### Features
+
+* fallback to compile script ([64e4205](https://github.com/just-paja/lerna-isolate/commit/64e42056cad00c48c613d3415531f3a4ac959804))
+
+
+
+
+
 # [0.10.0](https://github.com/just-paja/lerna-isolate/compare/v0.9.1...v0.10.0) (2023-03-23)
 
 
