@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/just-paja/lerna-jest/compare/v0.11.0...v0.11.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* ignore stuff in the root ([55a118f](https://github.com/just-paja/lerna-jest/commit/55a118f5944eefbfab59341045322a817420493d))
+
+
+
+
+
 # [0.11.0](https://github.com/just-paja/lerna-jest/compare/v0.10.0...v0.11.0) (2023-06-07)
 
 
