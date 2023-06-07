@@ -1,9 +1,8 @@
-const path = require('path')
-
+const { configureIntegration } = require('./integration.js')
 const { configureLinter } = require('./linter.js')
 const { configureProject } = require('./project.js')
-const { configureIntegration } = require('./integration.js')
 const { getPackagesSync } = require('@lerna/project')
+const { setPluginEnvVars } = require('./plugins.js')
 
 function nonEmpty(item) {
   return Boolean(item)
@@ -24,7 +23,7 @@ function guessRootConfig(directory) {
       []
     )
   )
-  process.env.NODE_PATH = path.join(directory, 'packages')
+  setPluginEnvVars(directory)
   return project
 }
 
