@@ -357,8 +357,19 @@ export class IsolatedPackage extends Package {
     this.backups = {}
   }
 
+  getBuildScript() {
+    if (this.scripts.build) {
+      return 'build'
+    }
+    if (this.scripts.compile) {
+      return 'compile'
+    }
+    return null
+  }
+
   async build() {
-    await execute('lerna', ['run', 'build', '--scope', this.name])
+    const script = this.getBuildScript()
+    await execute('lerna', ['run', script, '--scope', this.name])
   }
 
   nameJob(str) {
