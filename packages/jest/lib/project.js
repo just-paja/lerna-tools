@@ -9,6 +9,7 @@ function configureProject(rootDir, projects, config = {}) {
     collectCoverageFrom: [
       '**/*.{cjs,js,jsx,mjs}',
       '**/*.{ts,tsx,cts,mts,ctsx,mtsx}',
+      '!*.d.ts',
       '!**/__fixtures__/**',
       '!**/__samples__/**',
       '!**/__jest__/**',
