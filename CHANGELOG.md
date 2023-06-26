@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.2](https://github.com/just-paja/lerna-tools/compare/v0.11.1...v0.11.2) (2023-06-26)
+
+
+### Bug Fixes
+
+* reuse already built packages ([80f67f8](https://github.com/just-paja/lerna-tools/commit/80f67f8c9dc0bebaf6152ef09f3c42d4878748ed))
+* upgrade to lerna@7 ([ac90bc6](https://github.com/just-paja/lerna-tools/commit/ac90bc69180e4316d35521d0bd051aa12bba95d6))
+
+
+
+
+
 ## [0.11.1](https://github.com/just-paja/lerna-jest/compare/v0.11.0...v0.11.1) (2023-06-07)
 
 
