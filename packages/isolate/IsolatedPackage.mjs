@@ -40,7 +40,6 @@ export class IsolatedPackage extends Package {
     this.backups = {}
     this.integratedDependencies = []
     this.isolatedPackagePrefix = 'isolated-'
-    this.parentPackage = null
     this.project = project
     this.reporter = reporter
     this.storedDependencies = []
@@ -143,12 +142,7 @@ export class IsolatedPackage extends Package {
   async getLinkedDependencies() {
     const available = await this.project.getPackages()
     const required = Object.keys(this.dependencies || {})
-    return available
-      .filter(pkg => required.includes(pkg.name))
-      .map(pkg => {
-        pkg.parentPackage = this
-        return pkg
-      })
+    return available.filter(pkg => required.includes(pkg.name))
   }
 
   async installPublishedVersion(dep) {
@@ -389,7 +383,31 @@ export class IsolatedPackage extends Package {
     return this.runJobs([{ name: 'Ignore', fn: () => {} }])
   }
 
+  pushIsolationTasks(jobs) {
+    jobs.push({ name: 'Configure', fn: () => this.configurePackage() })
+    jobs.push({ name: 'Backup', fn: () => this.backupConfig() })
+    jobs.push({ name: 'Isolate deps for', fn: () => this.isolateDeps() })
+    jobs.push({ name: 'Package', fn: () => this.pack() })
+
+    if (this.cfg.packNpm) {
+      jobs.push({ name: 'Store', fn: () => this.storeNpmPackage() })
+    }
+
+    if (this.cfg.packRaw || this.cfg.packZip) {
+      jobs.push({ name: 'Extract', fn: () => this.extract() })
+    }
+
+    if (this.cfg.packZip) {
+      jobs.push({ name: 'Zip', fn: () => this.zip() })
+      jobs.push({ name: 'Store Zip', fn: () => this.storeZipPackage() })
+    }
+  }
+
   async isolate() {
+    if (this.done) {
+      return this.runJobs([{ name: 'Reuse', fn: () => {} }])
+    }
+
     if (this.cfg.ignore) {
       return this.ignore()
     }
@@ -401,24 +419,10 @@ export class IsolatedPackage extends Package {
     }
 
     if (this.cfg.isolate) {
-      jobs.push({ name: 'Configure', fn: () => this.configurePackage() })
-      jobs.push({ name: 'Backup', fn: () => this.backupConfig() })
-      jobs.push({ name: 'Isolate deps for', fn: () => this.isolateDeps() })
-      jobs.push({ name: 'Package', fn: () => this.pack() })
-
-      if (this.cfg.packNpm) {
-        jobs.push({ name: 'Store', fn: () => this.storeNpmPackage() })
-      }
-
-      if (this.cfg.packRaw || this.cfg.packZip) {
-        jobs.push({ name: 'Extract', fn: () => this.extract() })
-      }
-
-      if (this.cfg.packZip) {
-        jobs.push({ name: 'Zip', fn: () => this.zip() })
-        jobs.push({ name: 'Store Zip', fn: () => this.storeZipPackage() })
-      }
+      this.pushIsolationTasks(jobs)
     }
-    return await this.runJobs(jobs)
+    const ret = await this.runJobs(jobs)
+    this.done = true
+    return ret
   }
 }
